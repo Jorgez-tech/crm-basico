@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title || 'CRM Básico' %></title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <h1>🏢 CRM Básico</h1>
+            <p>Sistema de gestión de contactos y clientes</p>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="container">
+            <!-- Mensajes de notificación -->
+            <% if (typeof message !== 'undefined' && message) { %>
+                <div class="alert alert-success fade-in">
+                    ✅ <%= message %>
+                </div>
+            <% } %>
+            
+            <% if (typeof error !== 'undefined' && error) { %>
+                <div class="alert alert-error fade-in">
+                    ❌ <%= error %>
+                </div>
+            <% } %>
+
+            <!-- Estadísticas -->
+            <div class="stats-grid">
+                <div class="stat-card stat-total">
+                    <span class="stat-number"><%= stats.total %></span>
+                    <span class="stat-label">Total Contactos</span>
+                </div>
+                <div class="stat-card success stat-clientes">
+                    <span class="stat-number"><%= stats.clientes %></span>
+                    <span class="stat-label">Clientes</span>
+                </div>
+                <div class="stat-card warning stat-prospectos">
+                    <span class="stat-number"><%= stats.prospectos %></span>
+                    <span class="stat-label">Prospectos</span>
+                </div>
+                <div class="stat-card danger stat-inactivos">
+                    <span class="stat-number"><%= stats.inactivos %></span>
+                    <span class="stat-label">Inactivos</span>
+                </div>
+            </div>
+
+            <!-- Búsqueda -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>🔍 Buscar Contactos</h2>
+                </div>
+                <div class="card-body">
+                    <form action="/buscar" method="GET" class="search-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <div class="search-input">
+                                    <span class="search-icon">🔍</span>
+                                    <input 
+                                        type="text" 
+                                        id="search-input"
+                                        name="q" 
+                                        class="form-control" 
+                                        placeholder="Buscar por nombre, correo o empresa..."
+                                        value="<%= typeof searchTerm !== 'undefined' ? searchTerm : '' %>"
+                                    >
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary">
+                                    Buscar
+                                </button>
+                                <% if (typeof searchTerm !== 'undefined' && searchTerm) { %>
+                                    <a href="/" class="btn btn-outline" id="clear-search">
+                                        Limpiar
+                                    </a>
+                                <% } %>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Formulario para agregar contacto -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>➕ Agregar Nuevo Contacto</h2>
+                </div>
+                <div class="card-body">
+                    <form action="/contactos" method="POST">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="nombre" class="form-label">Nombre *</label>
+                                <input 
+                                    type="text" 
+                                    id="nombre" 
+                                    name="nombre" 
+                                    class="form-control" 
+                                    placeholder="Nombre completo"
+                                    required
+                                    minlength="2"
+                                    maxlength="255"
+                                >
+                            </div>
+                            <div class="form-group">
+                                <label for="correo" class="form-label">Correo Electrónico *</label>
+                                <input 
+                                    type="email" 
+                                    id="correo" 
+                                    name="correo" 
+                                    class="form-control" 
+                                    placeholder="ejemplo@correo.com"
+                                    required
+                                >
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="telefono" class="form-label">Teléfono</label>
+                                <input 
+                                    type="tel" 
+                                    id="telefono" 
+                                    name="telefono" 
+                                    class="form-control" 
+                                    placeholder="+1 (555) 123-4567"
+                                    oninput="CRM.formatPhoneInput(this)"
+                                >
+                            </div>
+                            <div class="form-group">
+                                <label for="empresa" class="form-label">Empresa</label>
+                                <input 
+                                    type="text" 
+                                    id="empresa" 
+                                    name="empresa" 
+                                    class="form-control" 
+                                    placeholder="Nombre de la empresa"
+                                    maxlength="255"
+                                >
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="estado" class="form-label">Estado</label>
+                                <select id="estado" name="estado" class="form-control form-select">
+                                    <option value="prospecto">🔍 Prospecto</option>
+                                    <option value="cliente">✅ Cliente</option>
+                                    <option value="inactivo">😴 Inactivo</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">&nbsp;</label>
+                                <button type="submit" class="btn btn-success">
+                                    ➕ Agregar Contacto
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Lista de contactos -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>👥 Lista de Contactos</h2>
+                </div>
+                <div class="card-body">
+                    <% if (contactos && contactos.length > 0) { %>
+                        <ul class="contact-list">
+                            <% contactos.forEach(function(contacto) { %>
+                                <li class="contact-item fade-in">
+                                    <div class="contact-info">
+                                        <h4><%= contacto.nombre %></h4>
+                                        <p>
+                                            📧 <span onclick="CRM.copyToClipboard('<%= contacto.correo %>')" style="cursor: pointer;" data-tooltip="Clic para copiar">
+                                                <%= contacto.correo %>
+                                            </span>
+                                        </p>
+                                        <% if (contacto.telefono) { %>
+                                            <p>
+                                                📞 <span onclick="CRM.copyToClipboard('<%= contacto.telefono %>')" style="cursor: pointer;" data-tooltip="Clic para copiar">
+                                                    <%= contacto.telefono %>
+                                                </span>
+                                            </p>
+                                        <% } %>
+                                        <% if (contacto.empresa) { %>
+                                            <p>🏢 <%= contacto.empresa %></p>
+                                        <% } %>
+                                        <p>
+                                            <span class="status-badge <%= contacto.estado %>">
+                                                <%= contacto.estado === 'prospecto' ? '🔍 Prospecto' : contacto.estado === 'cliente' ? '✅ Cliente' : '😴 Inactivo' %>
+                                            </span>
+                                        </p>
+                                        <p class="text-muted text-small">
+                                            Creado: <%= new Date(contacto.fecha_creacion).toLocaleDateString('es-ES', { 
+                                                year: 'numeric', 
+                                                month: 'long', 
+                                                day: 'numeric',
+                                                hour: '2-digit',
+                                                minute: '2-digit'
+                                            }) %>
+                                        </p>
+                                    </div>
+                                    <div class="contact-actions">
+                                        <a href="/contactos/<%= contacto.id %>/editar" class="btn btn-outline btn-sm" data-tooltip="Editar contacto">
+                                            ✏️ Editar
+                                        </a>
+                                        <form action="/contactos/<%= contacto.id %>/eliminar" method="POST" style="display: inline;">
+                                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                            <button type="submit" class="btn btn-danger btn-sm" data-tooltip="Eliminar contacto">
+                                                🗑️ Eliminar
+                                            </button>
+                                        </form>
+                                    </div>
+                                </li>
+                            <% }); %>
+                        </ul>
+                    <% } else { %>
+                        <div class="text-center" style="padding: 40px;">
+                            <h3>📭 No hay contactos</h3>
+                            <p class="text-muted">
+                                <% if (typeof searchTerm !== 'undefined' && searchTerm) { %>
+                                    No se encontraron contactos que coincidan con "<%= searchTerm %>".
+                                    <br><a href="/">Ver todos los contactos</a>
+                                <% } else { %>
+                                    Agrega tu primer contacto usando el formulario de arriba.
+                                <% } %>
+                            </p>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+
+            <!-- Posts de API externa (demo) -->
+            <% if (posts && posts.length > 0) { %>
+                <div class="card">
+                    <div class="card-header">
+                        <h2>📰 Noticias del Sector</h2>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted mb-lg">Últimas publicaciones obtenidas de fuentes externas:</p>
+                        <ul class="posts-list">
+                            <% posts.forEach(function(post) { %>
+                                <li class="post-item">
+                                    <h4 class="post-title"><%= post.title %></h4>
+                                    <p class="post-body"><%= post.body.substring(0, 150) %>...</p>
+                                </li>
+                            <% }); %>
+                        </ul>
+                    </div>
+                </div>
+            <% } %>
+        </div>
+    </main>
+
+    <script src="/js/main.js"></script>
+</body>
+</html>

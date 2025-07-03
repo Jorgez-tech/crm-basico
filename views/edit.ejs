@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title || 'Editar Contacto - CRM Básico' %></title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <h1>✏️ Editar Contacto</h1>
+            <p>Modifica la información del contacto</p>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="container">
+            <!-- Mensajes de notificación -->
+            <% if (typeof error !== 'undefined' && error) { %>
+                <div class="alert alert-error fade-in">
+                    ❌ <%= error %>
+                </div>
+            <% } %>
+
+            <!-- Navegación -->
+            <div class="mb-xl">
+                <a href="/" class="btn btn-outline">
+                    ← Volver a la lista
+                </a>
+            </div>
+
+            <!-- Formulario de edición -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>📝 Información del Contacto</h2>
+                </div>
+                <div class="card-body">
+                    <form action="/contactos/<%= contacto.id %>" method="POST">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                        
+                        <!-- Información básica -->
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="nombre" class="form-label">Nombre *</label>
+                                <input 
+                                    type="text" 
+                                    id="nombre" 
+                                    name="nombre" 
+                                    class="form-control" 
+                                    placeholder="Nombre completo"
+                                    value="<%= contacto.nombre %>"
+                                    required
+                                    minlength="2"
+                                    maxlength="255"
+                                >
+                            </div>
+                            <div class="form-group">
+                                <label for="correo" class="form-label">Correo Electrónico *</label>
+                                <input 
+                                    type="email" 
+                                    id="correo" 
+                                    name="correo" 
+                                    class="form-control" 
+                                    placeholder="ejemplo@correo.com"
+                                    value="<%= contacto.correo %>"
+                                    required
+                                >
+                            </div>
+                        </div>
+                        
+                        <!-- Información de contacto -->
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="telefono" class="form-label">Teléfono</label>
+                                <input 
+                                    type="tel" 
+                                    id="telefono" 
+                                    name="telefono" 
+                                    class="form-control" 
+                                    placeholder="+1 (555) 123-4567"
+                                    value="<%= contacto.telefono || '' %>"
+                                    oninput="CRM.formatPhoneInput(this)"
+                                >
+                            </div>
+                            <div class="form-group">
+                                <label for="empresa" class="form-label">Empresa</label>
+                                <input 
+                                    type="text" 
+                                    id="empresa" 
+                                    name="empresa" 
+                                    class="form-control" 
+                                    placeholder="Nombre de la empresa"
+                                    value="<%= contacto.empresa || '' %>"
+                                    maxlength="255"
+                                >
+                            </div>
+                        </div>
+                        
+                        <!-- Estado y metadatos -->
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="estado" class="form-label">Estado</label>
+                                <select id="estado" name="estado" class="form-control form-select" onchange="CRM.handleStatusChange(this)">
+                                    <option value="prospecto" <%= contacto.estado === 'prospecto' ? 'selected' : '' %>>
+                                        🔍 Prospecto
+                                    </option>
+                                    <option value="cliente" <%= contacto.estado === 'cliente' ? 'selected' : '' %>>
+                                        ✅ Cliente
+                                    </option>
+                                    <option value="inactivo" <%= contacto.estado === 'inactivo' ? 'selected' : '' %>>
+                                        😴 Inactivo
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Estado Actual</label>
+                                <div style="padding: 12px 0;">
+                                    <span class="status-badge <%= contacto.estado %>">
+                                        <%= contacto.estado === 'prospecto' ? '🔍 Prospecto' : contacto.estado === 'cliente' ? '✅ Cliente' : '😴 Inactivo' %>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Información de fechas -->
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Fecha de Creación</label>
+                                <div class="form-control" style="background-color: #f8fafc; color: #6b7280;">
+                                    📅 <%= new Date(contacto.fecha_creacion).toLocaleDateString('es-ES', { 
+                                        year: 'numeric', 
+                                        month: 'long', 
+                                        day: 'numeric',
+                                        hour: '2-digit',
+                                        minute: '2-digit'
+                                    }) %>
+                                </div>
+                            </div>
+                            <% if (contacto.fecha_actualizacion && contacto.fecha_actualizacion !== contacto.fecha_creacion) { %>
+                                <div class="form-group">
+                                    <label class="form-label">Última Actualización</label>
+                                    <div class="form-control" style="background-color: #f8fafc; color: #6b7280;">
+                                        🔄 <%= new Date(contacto.fecha_actualizacion).toLocaleDateString('es-ES', { 
+                                            year: 'numeric', 
+                                            month: 'long', 
+                                            day: 'numeric',
+                                            hour: '2-digit',
+                                            minute: '2-digit'
+                                        }) %>
+                                    </div>
+                                </div>
+                            <% } %>
+                        </div>
+                        
+                        <!-- Botones de acción -->
+                        <div class="form-row mt-xl">
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-success">
+                                    💾 Guardar Cambios
+                                </button>
+                                <a href="/" class="btn btn-outline">
+                                    ❌ Cancelar
+                                </a>
+                            </div>
+                            <div class="form-group text-right">
+                                <form action="/contactos/<%= contacto.id %>/eliminar" method="POST" style="display: inline;">
+                                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                    <button type="submit" class="btn btn-danger" data-tooltip="Eliminar este contacto permanentemente">
+                                        🗑️ Eliminar Contacto
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Información adicional -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>📊 Información del Contacto</h2>
+                </div>
+                <div class="card-body">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <strong>ID del Contacto:</strong>
+                            <p class="text-muted">#<%= contacto.id %></p>
+                        </div>
+                        <div class="form-group">
+                            <strong>Enlace Directo:</strong>
+                            <p class="text-muted">
+                                <span onclick="CRM.copyToClipboard(window.location.origin + '/contactos/<%= contacto.id %>/editar')" 
+                                      style="cursor: pointer; color: var(--color-primary);" 
+                                      data-tooltip="Clic para copiar enlace">
+                                    🔗 /contactos/<%= contacto.id %>/editar
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TODO: Sección para notas futuras -->
+            <!--
+            <div class="card">
+                <div class="card-header">
+                    <h2>📝 Notas e Interacciones</h2>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">Esta funcionalidad estará disponible en una versión futura.</p>
+                    
+                    <div class="form-group">
+                        <label for="nueva-nota" class="form-label">Agregar Nota</label>
+                        <textarea id="nueva-nota" class="form-control" rows="3" placeholder="Escribe una nota sobre este contacto..." disabled></textarea>
+                    </div>
+                    
+                    <button type="button" class="btn btn-primary" disabled>
+                        📝 Agregar Nota
+                    </button>
+                </div>
+            </div>
+            -->
+        </div>
+    </main>
+
+    <script src="/js/main.js"></script>
+    <script>
+        // Inicializar funcionalidades específicas de la página de edición
+        document.addEventListener('DOMContentLoaded', function() {
+            // Auto-enfocar el primer campo
+            document.getElementById('nombre').focus();
+            
+            // Confirmar antes de eliminar
+            const deleteForm = document.querySelector('form[action*="/eliminar"]');
+            if (deleteForm) {
+                deleteForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const contactName = '<%= contacto.nombre %>';
+                    if (confirm(`¿Estás seguro de que quieres eliminar a ${contactName}?\n\nEsta acción no se puede deshacer.`)) {
+                        this.submit();
+                    }
+                });
+            }
+            
+            // Detectar cambios en el formulario
+            const form = document.querySelector('form[action*="/contactos/"]');
+            const inputs = form.querySelectorAll('input, select, textarea');
+            let hasChanges = false;
+            
+            inputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    hasChanges = true;
+                });
+            });
+            
+            // Advertir antes de salir si hay cambios no guardados
+            window.addEventListener('beforeunload', function(e) {
+                if (hasChanges) {
+                    e.preventDefault();
+                    e.returnValue = '';
+                    return '';
+                }
+            });
+            
+            // No mostrar advertencia al enviar el formulario
+            form.addEventListener('submit', function() {
+                hasChanges = false;
+            });
+        });
+    </script>
+</body>
+</html>
