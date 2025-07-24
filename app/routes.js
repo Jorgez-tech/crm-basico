@@ -15,35 +15,59 @@ const utils = require('./utils');
 const router = express.Router();
 
 // ==================== RUTA PRINCIPAL ====================
-
 /**
- * GET / - Página principal con lista de contactos
+ * GET / - Página principal (dashboard o bienvenida)
  */
 router.get('/', async (req, res) => {
     try {
-        const contactos = await database.getAllContactos();
         const stats = await database.getStats();
-
-        // Obtener posts de API externa (funcionalidad demo)
         let posts = [];
         try {
             posts = await utils.fetchExternalPosts();
-            posts = posts.slice(0, 3); // Limitar a 3 posts
+            posts = posts.slice(0, 3);
         } catch (error) {
             console.warn('⚠️ No se pudieron obtener posts externos:', error.message);
         }
-
         res.render('index', {
             title: 'CRM Básico - Dashboard',
-            contactos,
-            posts,
             stats,
+            posts,
             csrfToken: req.csrfToken(),
             message: req.query.message || null,
             error: req.query.error || null
         });
     } catch (error) {
         console.error('❌ Error en ruta principal:', error);
+        res.status(500).render('error', {
+            title: 'Error del servidor',
+            error: error,
+            csrfToken: req.csrfToken()
+        });
+    }
+});
+
+/**
+ * GET / - Página principal con lista de contactos
+ */
+router.get('/contactos', async (req, res) => {
+    try {
+        let contactos;
+        let searchTerm = req.query.q || '';
+        if (searchTerm.trim()) {
+            contactos = await database.searchContactos(searchTerm);
+        } else {
+            contactos = await database.getAllContactos();
+        }
+        res.render('contactos', {
+            title: searchTerm ? `Resultados de búsqueda: "${searchTerm}"` : 'Lista de Contactos',
+            contactos,
+            searchTerm,
+            csrfToken: req.csrfToken(),
+            message: req.query.message || null,
+            error: req.query.error || null
+        });
+    } catch (error) {
+        console.error('❌ Error en ruta de contactos:', error);
         res.status(500).render('error', {
             title: 'Error del servidor',
             error: error,
@@ -224,26 +248,14 @@ router.post('/contactos/:id/eliminar', async (req, res) => {
 router.get('/buscar', async (req, res) => {
     try {
         const searchTerm = req.query.q || '';
-
         if (!searchTerm.trim()) {
-            return res.redirect('/');
+            return res.redirect('/contactos');
         }
-
-        const contactos = await database.searchContactos(searchTerm);
-        const stats = await database.getStats();
-
-        res.render('index', {
-            title: `Resultados de búsqueda: "${searchTerm}"`,
-            contactos,
-            posts: [], // No mostrar posts en resultados de búsqueda
-            stats,
-            searchTerm,
-            csrfToken: req.csrfToken(),
-            message: `Se encontraron ${contactos.length} resultado(s) para "${searchTerm}"`
-        });
+        // Redirigir a /contactos con el parámetro de búsqueda
+        return res.redirect(`/contactos?q=${encodeURIComponent(searchTerm)}`);
     } catch (error) {
         console.error('❌ Error en búsqueda:', error);
-        res.redirect(`/?error=${encodeURIComponent('Error al realizar la búsqueda')}`);
+        res.redirect('/contactos?error=Error%20al%20realizar%20la%20búsqueda');
     }
 });
 

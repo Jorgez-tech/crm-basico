@@ -30,9 +30,17 @@ app.use(helmet.contentSecurityPolicy({
     directives: {
         defaultSrc: ["'self'"],
         scriptSrc: ["'self'", "'unsafe-inline'"],
-        styleSrc: ["'self'", "'unsafe-inline'"],
-        imgSrc: ["'self'", 'data:', '*'],
-        fontSrc: ["'self'", 'https:', 'data:']
+        styleSrc: [
+            "'self'",
+            "'unsafe-inline'",
+            "https://fonts.googleapis.com"
+        ],
+        fontSrc: [
+            "'self'",
+            "https://fonts.gstatic.com",
+            "data:"
+        ],
+        imgSrc: ["'self'", 'data:', '*']
     },
 }));
 
@@ -50,12 +58,16 @@ app.use(session({
 }));
 
 // Configuración de CSRF
-app.use(csrf({ cookie: true }));
+// ==================== MIDDLEWARE ====================
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+app.use(csrf());
 
 // Manejo de errores CSRF
 app.use((err, req, res, next) => {
     if (err.code === 'EBADCSRFTOKEN') {
-        res.status(403).json({ error: 'Token CSRF inválido' });
+        // Redirigir a la página principal con mensaje de error
+        return res.redirect('/?error=' + encodeURIComponent('Token CSRF inválido'));
     } else {
         next(err);
     }
