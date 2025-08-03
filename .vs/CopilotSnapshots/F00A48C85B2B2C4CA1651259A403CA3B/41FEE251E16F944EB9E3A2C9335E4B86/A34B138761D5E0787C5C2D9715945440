@@ -1,4 +1,4 @@
-/**
+﻿/**
  * CRM Básico - Rutas de la Aplicación
  * Define todas las rutas y controladores
  * 
@@ -156,12 +156,10 @@ router.get('/contactos/:id/editar', async (req, res) => {
 
         const csrfToken = req.csrfToken();
         console.log('[GET /contactos/:id/editar] sessionID:', req.sessionID, 'csrfToken:', csrfToken);
-        console.log('CSRF Secret en sesión:', req.session._csrf);
         res.render('edit', {
             title: 'Editar Contacto',
             contacto,
-            csrfToken,
-            error: req.query.error || null
+            csrfToken
         });
     } catch (error) {
         console.error('❌ Error obteniendo contacto para editar:', error);
@@ -172,10 +170,8 @@ router.get('/contactos/:id/editar', async (req, res) => {
 /**
  * POST /contactos/:id - Actualizar contacto
  */
-const csrf = require('csurf');
-// ...existing code...
 router.post('/contactos/:id',
-    csrf(),
+    // Validaciones (mismas que para crear)
     body('nombre')
         .notEmpty()
         .withMessage('El nombre es obligatorio')
@@ -201,11 +197,9 @@ router.post('/contactos/:id',
     async (req, res) => {
         // LOGS DE DEPURACIÓN
         console.log('--- [POST /contactos/:id] ---');
-        console.log('SessionID:', req.sessionID);
-        console.log('CSRF Token enviado:', req.body._csrf);
-        console.log('CSRF Secret en sesión:', req.session._csrf);
         console.log('Params:', req.params);
         console.log('Body:', req.body);
+        console.log('SessionID:', req.sessionID);
         try {
             // Verificar errores de validación
             const errors = validationResult(req);

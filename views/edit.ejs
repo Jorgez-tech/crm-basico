@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%= title || 'Editar Contacto - CRM Básico' %></title>
-    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/styles.css?v=1.0.0">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -56,6 +56,7 @@
                                     required
                                     minlength="2"
                                     maxlength="255"
+                                    aria-labelledby="nombre-label"
                                 >
                             </div>
                             <div class="form-group">
@@ -68,6 +69,7 @@
                                     placeholder="ejemplo@correo.com"
                                     value="<%= contacto.correo %>"
                                     required
+                                    aria-labelledby="correo-label"
                                 >
                             </div>
                         </div>
@@ -84,6 +86,7 @@
                                     placeholder="+1 (555) 123-4567"
                                     value="<%= contacto.telefono || '' %>"
                                     oninput="CRM.formatPhoneInput(this)"
+                                    aria-labelledby="telefono-label"
                                 >
                             </div>
                             <div class="form-group">
@@ -96,6 +99,7 @@
                                     placeholder="Nombre de la empresa"
                                     value="<%= contacto.empresa || '' %>"
                                     maxlength="255"
+                                    aria-labelledby="empresa-label"
                                 >
                             </div>
                         </div>
@@ -104,7 +108,7 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="estado" class="form-label">Estado</label>
-                                <select id="estado" name="estado" class="form-control form-select" onchange="CRM.handleStatusChange(this)">
+                                <select id="estado" name="estado" class="form-control form-select" onchange="CRM.handleStatusChange(this)" aria-labelledby="estado-label">
                                     <option value="prospecto" <%= contacto.estado === 'prospecto' ? 'selected' : '' %>>
                                         🔍 Prospecto
                                     </option>
@@ -228,49 +232,49 @@
     </main>
 
     <script src="/js/main.js"></script>
+    <script src="/js/main.js?v=1.0.0"></script>
     <script>
         // Inicializar funcionalidades específicas de la página de edición
         document.addEventListener('DOMContentLoaded', function() {
             // Auto-enfocar el primer campo
-            document.getElementById('nombre').focus();
-            
+            var nombreInput = document.getElementById('nombre');
+            if (nombreInput) nombreInput.focus();
+
             // Confirmar antes de eliminar
-            const deleteForm = document.querySelector('form[action*="/eliminar"]');
+            var deleteForm = document.querySelector('form[action*="/eliminar"]');
             if (deleteForm) {
                 deleteForm.addEventListener('submit', function(e) {
                     e.preventDefault();
-                    
-                    const contactName = '<%= contacto.nombre %>';
+                    var contactName = '<%= contacto.nombre %>';
                     if (confirm(`¿Estás seguro de que quieres eliminar a ${contactName}?\n\nEsta acción no se puede deshacer.`)) {
                         this.submit();
                     }
                 });
             }
-            
-            // Detectar cambios en el formulario
-            const form = document.querySelector('form[action*="/contactos/"]');
-            const inputs = form.querySelectorAll('input, select, textarea');
-            let hasChanges = false;
-            
-            inputs.forEach(input => {
-                input.addEventListener('input', function() {
-                    hasChanges = true;
+
+            // Detectar cambios en el formulario principal de edición
+            var editForm = document.querySelector('form[action="/contactos/<%= contacto.id %>"]');
+            if (editForm) {
+                var inputs = editForm.querySelectorAll('input, select, textarea');
+                var hasChanges = false;
+                inputs.forEach(function(input) {
+                    input.addEventListener('input', function() {
+                        hasChanges = true;
+                    });
                 });
-            });
-            
-            // Advertir antes de salir si hay cambios no guardados
-            window.addEventListener('beforeunload', function(e) {
-                if (hasChanges) {
-                    e.preventDefault();
-                    e.returnValue = '';
-                    return '';
-                }
-            });
-            
-            // No mostrar advertencia al enviar el formulario
-            form.addEventListener('submit', function() {
-                hasChanges = false;
-            });
+                // Advertir antes de salir si hay cambios no guardados
+                window.addEventListener('beforeunload', function(e) {
+                    if (hasChanges) {
+                        e.preventDefault();
+                        e.returnValue = '';
+                        return '';
+                    }
+                });
+                // No mostrar advertencia al enviar el formulario
+                editForm.addEventListener('submit', function() {
+                    hasChanges = false;
+                });
+            }
         });
     </script>
 </body>

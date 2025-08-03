@@ -23,7 +23,12 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // ==================== CONFIGURACIÓN DE SEGURIDAD ====================
-app.use(helmet());
+
+// Helmet con configuración personalizada
+app.use(helmet({
+    frameguard: false, // No usar X-Frame-Options, usar CSP
+    xssFilter: false   // No usar x-xss-protection
+}));
 
 // Configuración de Content Security Policy
 app.use(helmet.contentSecurityPolicy({
@@ -40,7 +45,8 @@ app.use(helmet.contentSecurityPolicy({
             "https://fonts.gstatic.com",
             "data:"
         ],
-        imgSrc: ["'self'", 'data:', '*']
+        imgSrc: ["'self'", 'data:', '*'],
+        frameAncestors: ["'self'"] // Reemplaza X-Frame-Options
     },
 }));
 
@@ -61,27 +67,70 @@ app.use(session({
 // ==================== MIDDLEWARE ====================
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+// Usar csurf con la configuración por defecto (usa req.session)
+app.use((req, res, next) => {
+    // Middleware para loguear el estado de la sesión y CSRF
+    next();
+});
 app.use(csrf());
+app.use((req, res, next) => {
+    // Log después de csurf para ver el secreto y el token
+    if (req.session) {
+        console.log('SessionID:', req.sessionID);
+        console.log('CSRF Secret en sesión:', req.session.csrfSecret);
+    }
+    try {
+        const token = req.csrfToken();
+        console.log('CSRF Token generado:', token);
+    } catch (e) {
+        console.log('No se pudo generar CSRF Token:', e.message);
+    }
+    next();
+});
 
 // Manejo de errores CSRF
 app.use((err, req, res, next) => {
     if (err.code === 'EBADCSRFTOKEN') {
-        // Redirigir a la página principal con mensaje de error
-        return res.redirect('/?error=' + encodeURIComponent('Token CSRF inválido'));
+        console.log('❌ Error CSRF en:', req.method, req.path);
+        console.log('SessionID:', req.sessionID);
+        console.log('Headers referer:', req.get('Referer'));
+
+        // Redirigir según el tipo de operación
+        if (req.path.includes('/contactos/') && req.path.includes('/editar')) {
+            // Error en edición - redirigir a la página de edición con error
+            const contactId = req.path.split('/')[2];
+            return res.redirect(`/contactos/${contactId}/editar?error=${encodeURIComponent('Token CSRF inválido. Recarga la página e intenta nuevamente.')}`);
+        } else if (req.path.includes('/contactos/') && req.method === 'POST') {
+            // Error en actualización de contacto - redirigir al home con error
+            req.session.csrfError = 'Token CSRF inválido. Recarga la página e intenta nuevamente.';
+            return res.redirect('/');
+        } else {
+            // Error general - redirigir al home
+            req.session.csrfError = 'Token CSRF inválido. Recarga la página e intenta nuevamente.';
+            return res.redirect('/');
+        }
     } else {
         next(err);
     }
 });
 
+
 // ==================== CONFIGURACIÓN DE PLANTILLAS ====================
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, '..', 'views'));
 
-// ==================== MIDDLEWARE ====================
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
-
-// Servir archivos estáticos
+// Servir archivos estáticos con Cache-Control y cache busting
+app.use('/css', express.static(path.join(__dirname, '..', 'public', 'css'), {
+    setHeaders: (res) => {
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    }
+}));
+app.use('/js', express.static(path.join(__dirname, '..', 'public', 'js'), {
+    setHeaders: (res) => {
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    }
+}));
+app.use('/images', express.static(path.join(__dirname, '..', 'public', 'images')));
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
 // ==================== CONEXIÓN A BASE DE DATOS ====================

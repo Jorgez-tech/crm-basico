@@ -159,9 +159,13 @@ CREATE TABLE contacto_categorias (
 ## 🛡️ Seguridad
 
 - **Helmet.js:** Protección contra vulnerabilidades comunes
-- **CSRF:** Protección contra ataques de falsificación de peticiones
+- **CSRF:** Protección contra ataques de falsificación de peticiones (implementado con `csurf` y sesiones, incluyendo protección explícita en la ruta de edición de contactos)
 - **Validación:** Validación de datos en servidor y cliente
 - **Sanitización:** Limpieza de datos de entrada
+
+### Notas técnicas recientes
+- El middleware `csurf` se aplica globalmente y también de forma explícita en la ruta `POST /contactos/:id` para asegurar la validación del token antes de los validadores.
+- Si tienes problemas con el token CSRF al editar contactos, revisa que el token enviado en el formulario coincida con el de la sesión y que no haya middlewares que alteren el body antes de `csurf`.
 
 ## 🤝 Contribuir
 
