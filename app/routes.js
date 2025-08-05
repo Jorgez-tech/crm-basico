@@ -172,10 +172,7 @@ router.get('/contactos/:id/editar', async (req, res) => {
 /**
  * POST /contactos/:id - Actualizar contacto
  */
-const csrf = require('csurf');
-// ...existing code...
 router.post('/contactos/:id',
-    csrf(),
     body('nombre')
         .notEmpty()
         .withMessage('El nombre es obligatorio')

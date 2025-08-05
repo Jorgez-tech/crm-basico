@@ -24,6 +24,25 @@ Un sistema de gestión de relaciones con clientes (CRM) básico y funcional para
 
 ## 🛠️ Instalación
 
+## ✅ Checklist de Revisión Funcional
+
+
+Esta lista sirve para validar el funcionamiento del CRM como usuario final. Última revisión:
+
+- [x] **Crear contacto:** Completa el formulario principal y verifica que el contacto aparece en la lista.
+- [x] **Listar contactos:** Accede a la vista de lista y revisa que todos los contactos se muestran correctamente.
+- [x] **Editar contacto:** Haz clic en "Editar" junto a un contacto, modifica datos y guarda. Confirma que los cambios se reflejan.
+- [x] **Eliminar contacto:** Haz clic en "Eliminar" y confirma la acción. El contacto debe desaparecer de la lista.
+- [x] **Buscar contacto:** Usa la barra de búsqueda para filtrar contactos por nombre, correo, etc.
+- [x] **Validaciones de datos:** Intenta enviar formularios con datos inválidos y revisa que se muestren mensajes de error adecuados.
+- [ ] **Seguridad:** Verifica que no se puedan enviar formularios sin token CSRF y que la sesión funcione correctamente. _(Pendiente)_
+- [ ] **Mensajes de éxito/error:** Asegúrate de que cada acción muestra mensajes claros de éxito o error. _(Pendiente)_
+
+Puedes ejecutar el servicio en modo desarrollo con:
+```bash
+npm run dev
+```
+
 1. **Clonar el repositorio:**
    ```bash
    git clone https://github.com/jzuta/crm-basico.git

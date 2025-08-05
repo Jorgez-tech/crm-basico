@@ -170,16 +170,15 @@
                                     ❌ Cancelar
                                 </a>
                             </div>
-                            <div class="form-group text-right">
-                                <form action="/contactos/<%= contacto.id %>/eliminar" method="POST" style="display: inline;">
-                                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                                    <button type="submit" class="btn btn-danger" data-tooltip="Eliminar este contacto permanentemente">
-                                        🗑️ Eliminar Contacto
-                                    </button>
-                                </form>
-                            </div>
                         </div>
                     </form>
+                <!-- Formulario de eliminar contacto (fuera del form de edición) -->
+                <form action="/contactos/<%= contacto.id %>/eliminar" method="POST" style="display: inline; margin-top: 1rem;">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <button type="submit" class="btn btn-danger" data-tooltip="Eliminar este contacto permanentemente">
+                        🗑️ Eliminar Contacto
+                    </button>
+                </form>
                 </div>
             </div>
 
