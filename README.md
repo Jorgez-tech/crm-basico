@@ -27,16 +27,25 @@ Un sistema de gestión de relaciones con clientes (CRM) básico y funcional para
 ## ✅ Checklist de Revisión Funcional
 
 
-Esta lista sirve para validar el funcionamiento del CRM como usuario final. Última revisión:
+Checklist funcional validado:
+ - [x] Crear contacto
+ - [x] Listar contactos
+ - [x] Editar contacto
+ - [x] Eliminar contacto
+ - [x] Buscar contacto
+ - [x] Validaciones de datos
+ - [ ] Seguridad (CSRF y sesión) - pendiente de pruebas manuales
+ - [ ] Mensajes de éxito/error - pendiente de revisión final
 
-- [x] **Crear contacto:** Completa el formulario principal y verifica que el contacto aparece en la lista.
-- [x] **Listar contactos:** Accede a la vista de lista y revisa que todos los contactos se muestran correctamente.
-- [x] **Editar contacto:** Haz clic en "Editar" junto a un contacto, modifica datos y guarda. Confirma que los cambios se reflejan.
-- [x] **Eliminar contacto:** Haz clic en "Eliminar" y confirma la acción. El contacto debe desaparecer de la lista.
-- [x] **Buscar contacto:** Usa la barra de búsqueda para filtrar contactos por nombre, correo, etc.
-- [x] **Validaciones de datos:** Intenta enviar formularios con datos inválidos y revisa que se muestren mensajes de error adecuados.
-- [ ] **Seguridad:** Verifica que no se puedan enviar formularios sin token CSRF y que la sesión funcione correctamente. _(Pendiente)_
-- [ ] **Mensajes de éxito/error:** Asegúrate de que cada acción muestra mensajes claros de éxito o error. _(Pendiente)_
+## 🛡️ Seguridad
+
+- El middleware CSRF (`csurf`) se aplica globalmente.
+- Se eliminó el uso duplicado de `csrf()` en rutas POST específicas para evitar conflictos de sesión.
+- Los formularios de edición y eliminación ya no están anidados, lo que soluciona errores de validación CSRF.
+
+## 📝 Estado del Proyecto
+
+Las funcionalidades principales del CRM han sido validadas y están estables. Quedan pendientes pruebas manuales de seguridad y revisión de mensajes de éxito/error para la próxima iteración.
 
 Puedes ejecutar el servicio en modo desarrollo con:
 ```bash
