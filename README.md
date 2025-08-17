@@ -45,7 +45,9 @@ Checklist funcional validado:
 
 ## 📝 Estado del Proyecto
 
-Las funcionalidades principales del CRM han sido validadas y están estables. Quedan pendientes pruebas manuales de seguridad y revisión de mensajes de éxito/error para la próxima iteración.
+Las funcionalidades principales del CRM han sido validadas y están estables. Quedan pendientes pruebas manuales de seguridad (CSRF y sesiones) y documentación adicional.
+
+Consulta la guía de desarrollo con prioridades y pasos de verificación en `guia-desarrollo.md`.
 
 Puedes ejecutar el servicio en modo desarrollo con:
 ```bash
