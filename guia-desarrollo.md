@@ -28,7 +28,8 @@ Sprint 2 — Testing y automatización
   - [x] Tests manuales de flujo CRUD realizados (create/list/edit/delete).
 - Automatización: [ ] Pendiente
   - [ ] ESLint + Prettier: añadir configs y scripts si deseas consistencia.
-  - [ ] CI: workflow de GitHub Actions (install → lint → test → build).
+  - [~] ESLint + Prettier: scripts añadidos en `package.json` (configuración pendiente).
+  - [~] CI: Workflow básico añadido en `.github/workflows/ci.yml` (ejecuta install → lint → test). Nota: puede necesitar instalar devDependencies para pasar lint/tests.
 
 Sprint 3 — Limpieza y buenas prácticas
 - Código: [x] Parcial
@@ -37,7 +38,8 @@ Sprint 3 — Limpieza y buenas prácticas
   - [ ] Revisión rápida de `database.js` para conveniencia de testing (exponer función de conexión reutilizable).
 - Documentación: [~] Parcial
   - [x] README actualizado.
-  - [ ] Añadir CONTRIBUTING.md y README del servidor con scripts/entorno/test.
+  - [x] Añadir `CONTRIBUTING.md`.
+  - [x] Añadir `app/README.md` con instrucciones del servidor.
 
 Sprint 4 — Seguridad y sesión
 - Seguridad principal: [~] Parcial
@@ -49,7 +51,8 @@ Sprint 4 — Seguridad y sesión
 Sprint 5 — Despliegue y monitoreo
 - Despliegue: [~] Parcial
   - [x] Instrucciones locales (npm start / npm run dev).
-  - [ ] Pipeline y .env.production: pendiente.
+  - [x] `.env.production.example` añadido (plantilla de variables para producción).
+  - [ ] Pipeline definitivo y configuración de entorno productivo: pendiente.
 - Observabilidad: [~] Parcial
   - [ ] Logs estructurados y health endpoint expuesto (ya hay /health).
   - [ ] Definir estrategia de backups DB y variables de entorno en docs.
@@ -128,6 +131,25 @@ Plantilla rápida de “Pruebas CSRF / Sesión” (para copiar)
 - Repositorio: crm-basico (branch: main)
 - Última actualización: (completa la fecha si quieres)
 - Siguiente acción recomendada: ejecutar las pruebas CSRF manuales y añadir un README corto en `app/` con scripts y variables; luego añadir CI básica.
+
+Cambios recientes
+-----------------
+
+- 2025-08-17: Añadidos `CONTRIBUTING.md` y `app/README.md`.
+- 2025-08-17: Scripts `lint`, `lint:fix` y `format` añadidos en `package.json` (configuración/eslint no instalada todavía).
+- 2025-08-17: Workflow CI básico creado en `.github/workflows/ci.yml`.
+- 2025-08-17: Añadido `.env.production.example`.
+
+Pendientes actuales (prioridad alta)
+----------------------------------
+
+1. Ejecutar e instalar herramientas de lint/format (ESLint + Prettier) para que el workflow CI pase.
+2. Completar pruebas manuales CSRF/sesión y documentar resultados en esta guía.
+3. Implementar tests de integración backend (supertest) o preparar un entorno de pruebas MySQL.
+4. Preparar `.env.production` y checklist de deploy cuando vayan a publicar.
+
+Última actualización: 2025-08-17
+
 
 
 

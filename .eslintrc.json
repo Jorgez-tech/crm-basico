@@ -1,0 +1,35 @@
+{
+  "env": {
+    "node": true,
+    "es2021": true,
+    "commonjs": true
+  },
+  "extends": [
+    "eslint:recommended",
+    "plugin:node/recommended",
+    "prettier"
+  ],
+  "parserOptions": {
+    "ecmaVersion": 12
+  },
+  "rules": {
+    "no-console": "off",
+    "node/no-unpublished-require": "off",
+    "no-process-exit": "off",
+    "no-unused-vars": ["error", { "args": "none" }]
+  }
+
+  ,"overrides": [
+    {
+      "files": ["public/js/**/*.js", "public/js/*.js"],
+      "env": {
+        "browser": true,
+        "es6": true
+      },
+      "rules": {
+        "no-undef": "error",
+        "no-unused-vars": ["warn", { "args": "none" }]
+      }
+    }
+  ]
+}

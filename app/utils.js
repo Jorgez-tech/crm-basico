@@ -45,8 +45,8 @@ function isValidEmail(email) {
  */
 function isValidPhone(telefono) {
     if (!telefono) return true; // Es opcional
-    const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
-    return phoneRegex.test(telefono.replace(/[\s\-\(\)]/g, ''));
+    const phoneRegex = /^[+]?[1-9][0-9]{0,15}$/; // simplified pattern
+    return phoneRegex.test(telefono.replace(/[\s\-()]/g, ''));
 }
 
 /**

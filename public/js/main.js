@@ -87,8 +87,8 @@ function validateField(field) {
     }
 
     if (value && name === 'telefono') {
-        const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
-        const cleanPhone = value.replace(/[\s\-\(\)]/g, '');
+        const phoneRegex = /^[+]?[1-9][0-9]{0,15}$/;
+        const cleanPhone = value.replace(/[\s\-()]/g, '');
         if (!phoneRegex.test(cleanPhone)) {
             isValid = false;
             errorMessage = 'Ingresa un teléfono válido';
@@ -160,7 +160,6 @@ function initializeDeleteConfirmations() {
  * Inicializa funcionalidad de búsqueda
  */
 function initializeSearch() {
-    const searchForm = document.querySelector('.search-form');
     const searchInput = document.querySelector('#search-input');
 
     if (searchInput) {

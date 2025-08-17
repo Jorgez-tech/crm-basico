@@ -121,7 +121,7 @@ router.post('/contactos',
             }
 
             // Crear contacto
-            const contactoId = await database.createContacto({
+            await database.createContacto({
                 nombre: req.body.nombre,
                 correo: req.body.correo,
                 telefono: req.body.telefono,
