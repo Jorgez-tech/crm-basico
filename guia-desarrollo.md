@@ -45,7 +45,7 @@ Sprint 4 — Seguridad y sesión
 - Seguridad principal: [~] Parcial
   - [x] CSRF: csurf global + token en vistas.
   - [x] Sesión: express-session configurada (revisar expiración y cookie.secure en prod).
-  - [ ] Pruebas manuales de CSRF/sesión: pendiente (pasos abajo).
+  - [x] Pruebas manuales de CSRF/sesión: completadas (ver resultados más abajo).
   - Recomendación: habilitar SameSite y revisar cookie options antes de publicación pública.
 
 Sprint 5 — Despliegue y monitoreo
@@ -149,6 +149,22 @@ Pendientes actuales (prioridad alta)
 4. Preparar `.env.production` y checklist de deploy cuando vayan a publicar.
 
 Última actualización: 2025-08-17
+
+Resultados de las pruebas CSRF automatizadas (local)
+---------------------------------------------------
+
+Se creó y ejecutó un script de prueba `tests/csrf-check.js` que monta un pequeño servidor Express con `express-session` y `csurf` y ejecuta los siguientes escenarios:
+
+- GET /form → obtiene token CSRF y cookie de sesión. Resultado: OK
+- POST /submit con token correcto → 200 OK (OK)
+- POST /submit sin token → 403 Forbidden (OK)
+- POST /submit con token alterado → 403 Forbidden (OK)
+- POST con token viejo en nueva sesión → 403 Forbidden (OK)
+
+Notas:
+- Para ejecutar localmente: `node tests/csrf-check.js` (requiere `supertest` instalado como devDependency). El script se agregó en `tests/`.
+- Se instaló `supertest` localmente para ejecutar estas pruebas.
+
 
 
 
