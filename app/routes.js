@@ -156,7 +156,7 @@ router.get('/contactos/:id/editar', async (req, res) => {
 
         const csrfToken = req.csrfToken();
         console.log('[GET /contactos/:id/editar] sessionID:', req.sessionID, 'csrfToken:', csrfToken);
-        console.log('CSRF Secret en sesión:', req.session._csrf);
+        console.log('CSRF Secret en sesión:', req.session && req.session.csrfSecret);
         res.render('edit', {
             title: 'Editar Contacto',
             contacto,
@@ -200,7 +200,7 @@ router.post('/contactos/:id',
         console.log('--- [POST /contactos/:id] ---');
         console.log('SessionID:', req.sessionID);
         console.log('CSRF Token enviado:', req.body._csrf);
-        console.log('CSRF Secret en sesión:', req.session._csrf);
+        console.log('CSRF Secret en sesión:', req.session && req.session.csrfSecret);
         console.log('Params:', req.params);
         console.log('Body:', req.body);
         try {

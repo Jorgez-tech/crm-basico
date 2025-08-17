@@ -27,9 +27,8 @@ Sprint 2 — Testing y automatización
   - [~] Tests unitarios/backend: pendiente (recomiendo tests con supertest apuntando a una DB de prueba o mocks de capa DB).
   - [x] Tests manuales de flujo CRUD realizados (create/list/edit/delete).
 - Automatización: [ ] Pendiente
-  - [ ] ESLint + Prettier: añadir configs y scripts si deseas consistencia.
-  - [~] ESLint + Prettier: scripts añadidos en `package.json` (configuración pendiente).
-  - [~] CI: Workflow básico añadido en `.github/workflows/ci.yml` (ejecuta install → lint → test). Nota: puede necesitar instalar devDependencies para pasar lint/tests.
+  - [x] ESLint + Prettier: configs, scripts y devDependencies añadidos; linter ejecutado y la mayoría de problemas corregidos localmente.
+  - [~] CI: Workflow básico añadido en `.github/workflows/ci.yml` (ejecuta install → lint → test). Nota: asegurar que CI instala devDependencies en el job para que lint/tests pasen.
 
 Sprint 3 — Limpieza y buenas prácticas
 - Código: [x] Parcial
@@ -124,6 +123,8 @@ Plantilla rápida de “Pruebas CSRF / Sesión” (para copiar)
 - Paso 4: Borrar cookies de sesión, intentar editar con token anterior — 403.
 - Resultado esperado: sólo envíos con token válido y cookie de sesión activa aceptados.
 
+Nota: Las pruebas CSRF automatizadas y manuales se han ejecutado y documentado más abajo; `supertest` se instaló localmente para el script de pruebas (`tests/csrf-check.js`).
+
 Últimos datos y meta
 -------------------
 
@@ -135,18 +136,56 @@ Plantilla rápida de “Pruebas CSRF / Sesión” (para copiar)
 Cambios recientes
 -----------------
 
-- 2025-08-17: Añadidos `CONTRIBUTING.md` y `app/README.md`.
-- 2025-08-17: Scripts `lint`, `lint:fix` y `format` añadidos en `package.json` (configuración/eslint no instalada todavía).
-- 2025-08-17: Workflow CI básico creado en `.github/workflows/ci.yml`.
-- 2025-08-17: Añadido `.env.production.example`.
+ - 2025-08-17: Añadidos `CONTRIBUTING.md` y `app/README.md`.
+ - 2025-08-17: Scripts `lint`, `lint:fix` y `format` añadidos en `package.json`; ESLint/Prettier configurados y devDependencies instaladas localmente.
+ - 2025-08-17: Workflow CI básico creado en `.github/workflows/ci.yml`.
+ - 2025-08-17: Añadido `.env.production.example`.
+ - 2025-08-17: Branch `feature/guia-desarrollo` creado y cambios push al remoto (lista de commits incluidos en rama).
 
 Pendientes actuales (prioridad alta)
 ----------------------------------
 
 1. Ejecutar e instalar herramientas de lint/format (ESLint + Prettier) para que el workflow CI pase.
-2. Completar pruebas manuales CSRF/sesión y documentar resultados en esta guía.
-3. Implementar tests de integración backend (supertest) o preparar un entorno de pruebas MySQL.
+2. Completar pruebas manuales CSRF/sesión y verificar en navegadores (ya documentadas y validadas con script local).
+3. Implementar tests de integración backend (supertest) o preparar un entorno de pruebas MySQL (nota: `supertest` ya está instalado localmente para pruebas ad-hoc).
 4. Preparar `.env.production` y checklist de deploy cuando vayan a publicar.
+
+Instrucciones rápidas para correr y probar localmente
+----------------------------------------------------
+
+- Inicia dependencias e instala paquetes:
+
+```cmd
+npm install
+```
+
+- Iniciar el servidor en modo desarrollo (con nodemon):
+
+```cmd
+npm run dev
+```
+
+- Iniciar el servidor en modo producción (simple):
+
+```cmd
+npm start
+```
+
+- Ejecutar el chequeo CSRF automatizado (script incluido):
+
+```cmd
+node tests/csrf-check.js
+```
+
+- Ejecutar el E2E rápido que valida edición de `contactos/11` (extrae CSRF y envía POST):
+
+```cmd
+node tests/e2e-edit.js
+```
+
+Notas:
+- Si las pruebas fallan con 403, recarga la página de edición en el navegador para regenerar token y/o revisa las cookies de sesión.
+- Asegúrate de que las variables de entorno de DB estén correctamente configuradas antes de arrancar (ver `app/.env.example` o `.env.production.example`).
 
 Última actualización: 2025-08-17
 
@@ -164,6 +203,10 @@ Se creó y ejecutó un script de prueba `tests/csrf-check.js` que monta un peque
 Notas:
 - Para ejecutar localmente: `node tests/csrf-check.js` (requiere `supertest` instalado como devDependency). El script se agregó en `tests/`.
 - Se instaló `supertest` localmente para ejecutar estas pruebas.
+
+Notas:
+- Para ejecutar localmente: `node tests/csrf-check.js` (requiere `supertest` instalado como devDependency). El script se agregó en `tests/`.
+- `supertest` fue instalado localmente y el script se ejecutó con éxito; los escenarios previstos devolvieron los códigos esperados (200 para token válido, 403 para casos inválidos).
 
 
 
