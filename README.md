@@ -10,8 +10,12 @@ Un sistema de gestión de relaciones con clientes (CRM) básico y funcional para
 
 - ✅ Gestión completa de contactos (CRUD)
 - ✅ Interfaz intuitiva y responsive
-- ✅ Seguridad implementada (Helmet, CSRF)
-- ✅ Validación de datos
+- ✅ Seguridad implementada (Helmet, CSRF, Cookie hardening)
+- ✅ Validación de datos con express-validator
+- ✅ Health check endpoint (`/health`)
+- ✅ Structured logging con Winston
+- ✅ Testing automatizado (Jest + supertest)
+- ✅ CI/CD con GitHub Actions
 - ✅ Integración con APIs externas
 - ✅ Base de datos MySQL
 - ✅ Plantillas EJS dinámicas
@@ -26,7 +30,6 @@ Un sistema de gestión de relaciones con clientes (CRM) básico y funcional para
 
 ## ✅ Checklist de Revisión Funcional
 
-
 Checklist funcional validado:
  - [x] Crear contacto
  - [x] Listar contactos
@@ -34,8 +37,11 @@ Checklist funcional validado:
  - [x] Eliminar contacto
  - [x] Buscar contacto
  - [x] Validaciones de datos
- - [ ] Seguridad (CSRF y sesión) - pendiente de pruebas manuales
- - [ ] Mensajes de éxito/error - pendiente de revisión final
+ - [x] Seguridad (CSRF y sesión)
+ - [x] Mensajes de éxito/error
+ - [x] Health check endpoint
+ - [x] Structured logging
+ - [x] Tests automatizados
 
 ## 🛡️ Seguridad
 
@@ -45,14 +51,22 @@ Checklist funcional validado:
 
 ## 📝 Estado del Proyecto
 
-Las funcionalidades principales del CRM han sido validadas y están estables. Quedan pendientes pruebas manuales de seguridad (CSRF y sesiones) y documentación adicional.
+**Estado actual:** Proyecto funcional y completo para producción.
 
-Consulta la guía de desarrollo con prioridades y pasos de verificación en `guia-desarrollo.md`.
+✅ **Completado:**
+- Funcionalidades principales del CRM validadas y estables
+- Sistema de seguridad CSRF implementado y probado
+- Tests automatizados con cobertura completa
+- Health check y monitoreo implementado
+- Structured logging para desarrollo y producción
+- CI/CD pipeline configurado
 
-Puedes ejecutar el servicio en modo desarrollo con:
-```bash
-npm run dev
-```
+📋 **Próximos pasos:**
+- Pipeline de deployment definitivo
+- Documentación de estrategia de backups
+- Pull Request hacia rama main
+
+Consulta la guía de desarrollo detallada en `guia-desarrollo.md`.
 
 1. **Clonar el repositorio:**
    ```bash
@@ -90,16 +104,29 @@ npm run dev
 
 5. **Iniciar la aplicación:**
    ```bash
-   # Desarrollo
+   # Desarrollo (con nodemon)
    npm run dev
    
    # Producción
    npm start
+   
+   # Tests
+   npm test
+   npm run test:integration
+   
+   # Linting y formato
+   npm run lint
+   npm run format
    ```
 
 6. **Abrir en el navegador:**
    ```
    http://localhost:3000
+   ```
+
+7. **Verificar health check:**
+   ```
+   http://localhost:3000/health
    ```
 
 ## 🏗️ Estructura del Proyecto
@@ -110,7 +137,14 @@ crm-basico/
 │   ├── main.js          # Archivo principal del servidor
 │   ├── routes.js        # Definición de rutas
 │   ├── database.js      # Configuración de base de datos
+│   ├── logger.js        # Sistema de logging estructurado
 │   └── utils.js         # Funciones utilitarias
+├── tests/
+│   ├── integration.test.js  # Tests de integración
+│   ├── setup.js         # Configuración de Jest
+│   ├── csrf-check.js    # Tests CSRF
+│   └── e2e-edit.js      # Tests E2E
+├── logs/                # Archivos de log (producción)
 ├── public/
 │   ├── css/
 │   │   └── styles.css   # Estilos principales
@@ -184,18 +218,48 @@ CREATE TABLE contacto_categorias (
 
 - **Búsqueda:** Usa la barra de búsqueda para filtrar contactos
 - **Filtros:** Filtra por estado (prospecto, cliente, inactivo)
-- **Exportación:** Descarga la lista en formato CSV
+- **Health check:** Verifica el estado del sistema en `/health`
+- **Logs:** Revisa los logs del sistema (archivos en `logs/` en producción)
+
+## 🧪 Testing
+
+El proyecto incluye un sistema completo de testing:
+
+```bash
+# Ejecutar todos los tests
+npm test
+
+# Tests de integración
+npm run test:integration
+
+# Tests CSRF específicos
+node tests/csrf-check.js
+
+# Tests E2E
+node tests/e2e-edit.js
+```
+
+### Tipos de tests incluidos:
+- **Integration tests:** Tests completos de rutas y funcionalidad
+- **CSRF tests:** Verificación de protección CSRF
+- **API tests:** Tests de endpoints JSON
+- **E2E tests:** Tests de flujo completo de usuario
 
 ## 🛡️ Seguridad
 
 - **Helmet.js:** Protección contra vulnerabilidades comunes
-- **CSRF:** Protección contra ataques de falsificación de peticiones (implementado con `csurf` y sesiones, incluyendo protección explícita en la ruta de edición de contactos)
-- **Validación:** Validación de datos en servidor y cliente
+- **CSRF:** Protección contra ataques de falsificación de peticiones
+- **Cookie hardening:** Cookies seguras en producción (secure, sameSite)
+- **Validación:** Validación de datos en servidor con express-validator
 - **Sanitización:** Limpieza de datos de entrada
+- **Structured logging:** Registro de eventos de seguridad
 
-### Notas técnicas recientes
-- El middleware `csurf` se aplica globalmente y también de forma explícita en la ruta `POST /contactos/:id` para asegurar la validación del token antes de los validadores.
-- Si tienes problemas con el token CSRF al editar contactos, revisa que el token enviado en el formulario coincida con el de la sesión y que no haya middlewares que alteren el body antes de `csurf`.
+## 🔍 Monitoreo y Observabilidad
+
+- **Health endpoint:** `/health` - Verificación de estado del sistema y base de datos
+- **Structured logging:** Sistema de logs con Winston para desarrollo y producción
+- **Métricas del sistema:** Información de memoria, uptime y performance
+- **Request logging:** Log automático de todas las peticiones HTTP
 
 ## 🤝 Contribuir
 
@@ -229,10 +293,19 @@ Si encuentras un error, por favor [crea un issue](https://github.com/jzuta/crm-b
 
 Este proyecto está bajo la licencia MIT. Ver [LICENSE](LICENSE) para más detalles.
 
-## 👨‍💻 Autor
+---
+
+## � Documentación Adicional
+
+- `guia-desarrollo.md` - Guía completa de desarrollo y checklist de tareas
+- `CONTRIBUTING.md` - Guía para contribuidores
+- `app/README.md` - Documentación específica del servidor
+- `.env.production.example` - Ejemplo de configuración para producción
+
+## �👨‍💻 Autor
 
 **Jorge Zuta**
-- GitHub: [@jzuta](https://github.com/jzuta)
+- GitHub: [@Jorgez-tech](https://github.com/Jorgez-tech)
 - Email: tu-email@ejemplo.com
 
 ## 🙏 Agradecimientos
