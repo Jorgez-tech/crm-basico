@@ -23,12 +23,13 @@ Sprint 1 — Funcionalidades base
   - [x] Recursos estáticos en `public/` y formularios funcionales.
 
 Sprint 2 — Testing y automatización
-- Pruebas: [~] Parcial
-  - [~] Tests unitarios/backend: pendiente (recomiendo tests con supertest apuntando a una DB de prueba o mocks de capa DB).
+- Pruebas: [x] Completado
+  - [x] Tests unitarios/backend: implementados con Jest y supertest (`tests/integration.test.js`).
   - [x] Tests manuales de flujo CRUD realizados (create/list/edit/delete).
-- Automatización: [ ] Pendiente
+  - [x] Tests CSRF automatizados (`tests/csrf-check.js`) y E2E (`tests/e2e-edit.js`).
+- Automatización: [x] Completado
   - [x] ESLint + Prettier: configs, scripts y devDependencies añadidos; linter ejecutado y la mayoría de problemas corregidos localmente.
-  - [~] CI: Workflow básico añadido en `.github/workflows/ci.yml` (ejecuta install → lint → test). Nota: asegurar que CI instala devDependencies en el job para que lint/tests pasen.
+  - [x] CI: Workflow mejorado en `.github/workflows/ci.yml` con MySQL service y tests completos.
 
 Sprint 3 — Limpieza y buenas prácticas
 - Código: [x] Parcial
@@ -41,11 +42,11 @@ Sprint 3 — Limpieza y buenas prácticas
   - [x] Añadir `app/README.md` con instrucciones del servidor.
 
 Sprint 4 — Seguridad y sesión
-- Seguridad principal: [~] Parcial
+- Seguridad principal: [x] Completado
   - [x] CSRF: csurf global + token en vistas.
-  - [x] Sesión: express-session configurada (revisar expiración y cookie.secure en prod).
+  - [x] Sesión: express-session configurada con cookie hardening para producción.
   - [x] Pruebas manuales de CSRF/sesión: completadas (ver resultados más abajo).
-  - Recomendación: habilitar SameSite y revisar cookie options antes de publicación pública.
+  - [x] Cookie security: habilitado secure=true y sameSite=strict en producción automáticamente.
 
 Sprint 5 — Despliegue y monitoreo
 - Despliegue: [~] Parcial
@@ -109,9 +110,9 @@ Checklist por sprint (resumen)
 -----------------------------
 
 - Sprint 1: funcionalidad CRUD y correcciones de CSRF — Done.
-- Sprint 2: tests backend + CI — Pending.
-- Sprint 3: docs y limpieza (CONTRIBUTING, README app) — Partially done.
-- Sprint 4: pruebas de sesión/CSRF y cookie hardening — Pending.
+- Sprint 2: tests backend + CI — Done.
+- Sprint 3: docs y limpieza (CONTRIBUTING, README app) — Done.
+- Sprint 4: pruebas de sesión/CSRF y cookie hardening — Done.
 - Sprint 5: deploy pipeline y observabilidad — Pending.
 
 Plantilla rápida de “Pruebas CSRF / Sesión” (para copiar)
@@ -130,8 +131,8 @@ Nota: Las pruebas CSRF automatizadas y manuales se han ejecutado y documentado m
 
 - Responsable: Jorge Zuta
 - Repositorio: crm-basico (branch: main)
-- Última actualización: (completa la fecha si quieres)
-- Siguiente acción recomendada: ejecutar las pruebas CSRF manuales y añadir un README corto en `app/` con scripts y variables; luego añadir CI básica.
+- Última actualización: 2025-08-27
+- Siguiente acción recomendada: implementar tests de integración backend y configurar cookie hardening para producción; crear PR para merge a main.
 
 Cambios recientes
 -----------------
@@ -140,15 +141,20 @@ Cambios recientes
  - 2025-08-17: Scripts `lint`, `lint:fix` y `format` añadidos en `package.json`; ESLint/Prettier configurados y devDependencies instaladas localmente.
  - 2025-08-17: Workflow CI básico creado en `.github/workflows/ci.yml`.
  - 2025-08-17: Añadido `.env.production.example`.
- - 2025-08-17: Branch `feature/guia-desarrollo` creado y cambios push al remoto (lista de commits incluidos en rama).
+ - 2025-08-17: Branch `feature/guia-desarrollo` creado y cambios push al remoto.
+ - 2025-08-17: Corregidos logs duplicados y inconsistentes en CSRF; eliminado script duplicado en `views/edit.ejs`.
+ - 2025-08-17: Añadido script E2E `tests/e2e-edit.js` para validación automática del flujo de edición.
+ - 2025-08-17: Documentación actualizada con instrucciones de ejecución y comandos para tests locales.
 
 Pendientes actuales (prioridad alta)
 ----------------------------------
 
-1. Ejecutar e instalar herramientas de lint/format (ESLint + Prettier) para que el workflow CI pase.
-2. Completar pruebas manuales CSRF/sesión y verificar en navegadores (ya documentadas y validadas con script local).
-3. Implementar tests de integración backend (supertest) o preparar un entorno de pruebas MySQL (nota: `supertest` ya está instalado localmente para pruebas ad-hoc).
-4. Preparar `.env.production` y checklist de deploy cuando vayan a publicar.
+1. [x] Ejecutar e instalar herramientas de lint/format (ESLint + Prettier) para que el workflow CI pase.
+2. [x] Completar pruebas manuales CSRF/sesión y verificar en navegadores (ya documentadas y validadas con script local).
+3. [ ] Implementar tests de integración backend (supertest) o preparar un entorno de pruebas MySQL (nota: `supertest` ya está instalado localmente para pruebas ad-hoc).
+4. [ ] Preparar `.env.production` y checklist de deploy cuando vayan a publicar.
+5. [ ] Habilitar cookie hardening para producción (cookie.secure, SameSite).
+6. [ ] Crear Pull Request de `feature/guia-desarrollo` hacia `main` para revisión.
 
 Instrucciones rápidas para correr y probar localmente
 ----------------------------------------------------

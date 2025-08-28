@@ -9,6 +9,16 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: mysql
+          MYSQL_DATABASE: crm_basico_test
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
 
     steps:
       - uses: actions/checkout@v4
@@ -16,9 +26,32 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18'
+          cache: 'npm'
       - name: Install dependencies
         run: npm ci
       - name: Run lint
         run: npm run lint
-      - name: Run tests
-        run: npm test
+      - name: Run CSRF tests
+        run: npm run test:csrf
+      - name: Wait for MySQL
+        run: |
+          for i in {1..30}; do
+            mysqladmin ping -h"127.0.0.1" -P3306 -uroot -pmysql && break
+            echo "Waiting for MySQL..."
+            sleep 2
+          done
+      - name: Setup test database
+        run: |
+          mysql -h127.0.0.1 -P3306 -uroot -pmysql -e "CREATE DATABASE IF NOT EXISTS crm_basico_test;"
+        env:
+          MYSQL_PWD: mysql
+      - name: Run integration tests
+        run: npm run test:integration
+        env:
+          NODE_ENV: test
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_USER: root
+          DB_PASSWORD: mysql
+          DB_NAME: crm_basico_test
+          SESSION_SECRET: test_secret_for_ci

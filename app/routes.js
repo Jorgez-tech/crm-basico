@@ -14,6 +14,67 @@ const utils = require('./utils');
 
 const router = express.Router();
 
+// ==================== HEALTH CHECK ====================
+/**
+ * GET /health - Health check endpoint para monitoreo
+ * Verifica estado del servidor y conexión a la base de datos
+ */
+router.get('/health', async (req, res) => {
+    const startTime = Date.now();
+
+    try {
+        // Verificar conexión a la base de datos
+        const dbStatus = await database.checkConnection();
+        const responseTime = Date.now() - startTime;
+
+        const healthData = {
+            status: 'ok',
+            timestamp: new Date().toISOString(),
+            uptime: process.uptime(),
+            responseTime: `${responseTime}ms`,
+            environment: process.env.NODE_ENV || 'development',
+            database: {
+                status: dbStatus ? 'connected' : 'disconnected',
+                responseTime: dbStatus ? `${responseTime}ms` : 'timeout'
+            },
+            memory: {
+                used: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
+                total: Math.round(process.memoryUsage().heapTotal / 1024 / 1024),
+                unit: 'MB'
+            }
+        };
+
+        // Si la base de datos no responde, devolver status degraded
+        if (!dbStatus) {
+            healthData.status = 'degraded';
+            return res.status(503).json(healthData);
+        }
+
+        res.json(healthData);
+    } catch (error) {
+        console.error('❌ Error en health check:', error);
+
+        const errorResponse = {
+            status: 'error',
+            timestamp: new Date().toISOString(),
+            uptime: process.uptime(),
+            responseTime: `${Date.now() - startTime}ms`,
+            environment: process.env.NODE_ENV || 'development',
+            database: {
+                status: 'error',
+                error: error.message
+            },
+            memory: {
+                used: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
+                total: Math.round(process.memoryUsage().heapTotal / 1024 / 1024),
+                unit: 'MB'
+            }
+        };
+
+        res.status(500).json(errorResponse);
+    }
+});
+
 // ==================== RUTA PRINCIPAL ====================
 /**
  * GET / - Página principal (dashboard o bienvenida)

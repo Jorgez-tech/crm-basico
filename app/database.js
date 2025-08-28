@@ -206,6 +206,25 @@ async function getStats() {
 }
 
 /**
+ * Verifica la conexión a la base de datos
+ * Usado por el health check endpoint
+ */
+async function checkConnection() {
+    try {
+        if (!connection) {
+            return false;
+        }
+
+        // Ejecutar una consulta simple para verificar la conexión
+        await connection.execute('SELECT 1');
+        return true;
+    } catch (error) {
+        console.error('❌ Error verificando conexión:', error);
+        return false;
+    }
+}
+
+/**
  * Cierra la conexión a la base de datos
  */
 async function close() {
@@ -219,6 +238,7 @@ async function close() {
 module.exports = {
     connect,
     close,
+    checkConnection,
     getAllContactos,
     getContactoById,
     createContacto,

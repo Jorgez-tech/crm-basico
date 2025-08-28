@@ -57,9 +57,10 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     cookie: {
-        secure: false, // Cambiar a true en producción con HTTPS
+        secure: process.env.NODE_ENV === 'production', // HTTPS en producción
         httpOnly: true,
-        maxAge: 24 * 60 * 60 * 1000 // 24 horas
+        maxAge: 24 * 60 * 60 * 1000, // 24 horas
+        sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax' // Protección CSRF mejorada en prod
     }
 }));
 
