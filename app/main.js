@@ -18,6 +18,7 @@ const bodyParser = require('body-parser');
 // Importar módulos locales
 const routes = require('./routes');
 const database = require('./database');
+const { loggers, httpLoggerMiddleware } = require('./logger');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -68,6 +69,10 @@ app.use(session({
 // ==================== MIDDLEWARE ====================
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+
+// ==================== LOGGING DE PETICIONES HTTP ====================
+app.use(httpLoggerMiddleware);
+
 // Usar csurf con la configuración por defecto (usa req.session)
 app.use((req, res, next) => {
     // Middleware para loguear el estado de la sesión y CSRF
@@ -92,9 +97,13 @@ app.use((req, res, next) => {
 // Manejo de errores CSRF
 app.use((err, req, res, next) => {
     if (err.code === 'EBADCSRFTOKEN') {
-        console.log('❌ Error CSRF en:', req.method, req.path);
-        console.log('SessionID:', req.sessionID);
-        console.log('Headers referer:', req.get('Referer'));
+        loggers.security('CSRF token inválido', {
+            method: req.method,
+            path: req.path,
+            sessionId: req.sessionID,
+            referer: req.get('Referer'),
+            userAgent: req.get('User-Agent')
+        }, req);
 
         // Redirigir según el tipo de operación
         if (req.path.includes('/contactos/') && req.path.includes('/editar')) {
@@ -157,7 +166,12 @@ app.use('*', (req, res) => {
 
 // ==================== MANEJO DE ERRORES GLOBAL ====================
 app.use((err, req, res, next) => {
-    console.error('❌ Error no manejado:', err);
+    loggers.error('❌ Error no manejado', err, {
+        url: req.url,
+        method: req.method,
+        sessionId: req.sessionID,
+        ip: req.ip
+    });
     res.status(500).render('error', {
         title: 'Error del servidor',
         error: process.env.NODE_ENV === 'development' ? err : {},
@@ -167,20 +181,23 @@ app.use((err, req, res, next) => {
 
 // ==================== INICIAR SERVIDOR ====================
 app.listen(PORT, () => {
-    console.log(`🚀 Servidor CRM Básico ejecutándose en http://localhost:${PORT}`);
-    console.log(`📁 Entorno: ${process.env.NODE_ENV || 'development'}`);
-    console.log(`⏰ Iniciado en: ${new Date().toLocaleString()}`);
+    loggers.info(`🚀 Servidor CRM Básico ejecutándose en http://localhost:${PORT}`, {
+        port: PORT,
+        environment: process.env.NODE_ENV || 'development',
+        timestamp: new Date().toLocaleString(),
+        pid: process.pid
+    });
 });
 
 // Manejo de cierre graceful
 process.on('SIGTERM', () => {
-    console.log('🔄 Cerrando servidor...');
+    loggers.info('🔄 Cerrando servidor por SIGTERM...');
     database.close();
     process.exit(0);
 });
 
 process.on('SIGINT', () => {
-    console.log('🔄 Cerrando servidor...');
+    loggers.info('🔄 Cerrando servidor por SIGINT...');
     database.close();
     process.exit(0);
 });

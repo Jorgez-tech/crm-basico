@@ -34,7 +34,8 @@
     "express-session": "^1.18.1",
     "express-validator": "^7.2.0",
     "helmet": "^8.0.0",
-    "mysql2": "^3.11.4"
+    "mysql2": "^3.11.4",
+    "winston": "^3.17.0"
   },
   "devDependencies": {
     "eslint": "^8.0.0",
@@ -57,7 +58,9 @@
     "testMatch": [
       "**/tests/**/*.test.js"
     ],
-    "setupFilesAfterEnv": ["<rootDir>/tests/setup.js"]
+    "setupFilesAfterEnv": [
+      "<rootDir>/tests/setup.js"
+    ]
   },
   "repository": {
     "type": "git",

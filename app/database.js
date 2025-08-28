@@ -8,6 +8,7 @@
  */
 
 const mysql = require('mysql2/promise');
+const { loggers } = require('./logger');
 
 // Configuración de la base de datos
 const dbConfig = {
@@ -29,14 +30,19 @@ let connection = null;
 async function connect() {
     try {
         connection = await mysql.createConnection(dbConfig);
-        console.log('📊 Conectado a MySQL como ID:', connection.threadId);
+        loggers.info('📊 Conectado a MySQL', {
+            threadId: connection.threadId,
+            host: dbConfig.host,
+            database: dbConfig.database,
+            port: dbConfig.port
+        });
 
         // Verificar que las tablas existan
         await initializeTables();
 
         return connection;
     } catch (error) {
-        console.error('❌ Error conectando a MySQL:', error);
+        loggers.error('❌ Error conectando a MySQL', error, { config: dbConfig });
         throw error;
     }
 }
@@ -63,7 +69,7 @@ async function initializeTables() {
         `;
 
         await connection.execute(createContactosTable);
-        console.log('✅ Tabla contactos verificada/creada');
+        loggers.info('✅ Tabla contactos verificada/creada');
 
         // TODO: Crear tablas adicionales para funcionalidades futuras
         /*
@@ -81,7 +87,7 @@ async function initializeTables() {
         */
 
     } catch (error) {
-        console.error('❌ Error inicializando tablas:', error);
+        loggers.error('❌ Error inicializando tablas', error);
         throw error;
     }
 }
@@ -96,7 +102,7 @@ async function getAllContactos() {
         );
         return rows;
     } catch (error) {
-        console.error('❌ Error obteniendo contactos:', error);
+        loggers.error('❌ Error obteniendo contactos', error);
         throw error;
     }
 }
@@ -112,7 +118,7 @@ async function getContactoById(id) {
         );
         return rows[0];
     } catch (error) {
-        console.error('❌ Error obteniendo contacto:', error);
+        loggers.error('❌ Error obteniendo contacto', error, { id });
         throw error;
     }
 }
@@ -127,9 +133,17 @@ async function createContacto(contactoData) {
             'INSERT INTO contactos (nombre, correo, telefono, empresa, estado) VALUES (?, ?, ?, ?, ?)',
             [nombre, correo, telefono || null, empresa || null, estado || 'prospecto']
         );
+
+        loggers.database('INSERT', 'contactos', {
+            insertId: result.insertId,
+            affectedRows: result.affectedRows,
+            nombre: nombre,
+            correo: correo
+        });
+
         return result.insertId;
     } catch (error) {
-        console.error('❌ Error creando contacto:', error);
+        loggers.error('❌ Error creando contacto', error, { contactoData });
         throw error;
     }
 }
@@ -144,9 +158,16 @@ async function updateContacto(id, contactoData) {
             'UPDATE contactos SET nombre = ?, correo = ?, telefono = ?, empresa = ?, estado = ? WHERE id = ?',
             [nombre, correo, telefono || null, empresa || null, estado || 'prospecto', id]
         );
+
+        loggers.database('UPDATE', 'contactos', {
+            id: id,
+            affectedRows: result.affectedRows,
+            changedRows: result.changedRows
+        });
+
         return result.affectedRows > 0;
     } catch (error) {
-        console.error('❌ Error actualizando contacto:', error);
+        loggers.error('❌ Error actualizando contacto', error, { id, contactoData });
         throw error;
     }
 }
@@ -160,9 +181,15 @@ async function deleteContacto(id) {
             'DELETE FROM contactos WHERE id = ?',
             [id]
         );
+
+        loggers.database('DELETE', 'contactos', {
+            id: id,
+            affectedRows: result.affectedRows
+        });
+
         return result.affectedRows > 0;
     } catch (error) {
-        console.error('❌ Error eliminando contacto:', error);
+        loggers.error('❌ Error eliminando contacto', error, { id });
         throw error;
     }
 }
@@ -178,7 +205,7 @@ async function searchContactos(searchTerm) {
         );
         return rows;
     } catch (error) {
-        console.error('❌ Error buscando contactos:', error);
+        loggers.error('❌ Error buscando contactos', error, { searchTerm });
         throw error;
     }
 }
@@ -200,7 +227,7 @@ async function getStats() {
             inactivos: inactivoRows[0].inactivos
         };
     } catch (error) {
-        console.error('❌ Error obteniendo estadísticas:', error);
+        loggers.error('❌ Error obteniendo estadísticas', error);
         throw error;
     }
 }
@@ -219,7 +246,7 @@ async function checkConnection() {
         await connection.execute('SELECT 1');
         return true;
     } catch (error) {
-        console.error('❌ Error verificando conexión:', error);
+        loggers.error('❌ Error verificando conexión', error);
         return false;
     }
 }
@@ -230,7 +257,7 @@ async function checkConnection() {
 async function close() {
     if (connection) {
         await connection.end();
-        console.log('🔌 Conexión a base de datos cerrada');
+        loggers.info('🔌 Conexión a base de datos cerrada');
     }
 }
 

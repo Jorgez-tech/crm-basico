@@ -53,8 +53,10 @@ Sprint 5 — Despliegue y monitoreo
   - [x] Instrucciones locales (npm start / npm run dev).
   - [x] `.env.production.example` añadido (plantilla de variables para producción).
   - [ ] Pipeline definitivo y configuración de entorno productivo: pendiente.
-- Observabilidad: [~] Parcial
-  - [ ] Logs estructurados y health endpoint expuesto (ya hay /health).
+- Observabilidad: [x] Completado
+  - [x] Health endpoint en `/health` con verificación de DB y métricas del sistema.
+  - [x] Logs estructurados con Winston (desarrollo y producción).
+  - [x] Logging de operaciones HTTP, base de datos y eventos de seguridad.
   - [ ] Definir estrategia de backups DB y variables de entorno en docs.
 
 Ajustes recomendados a la guía (prioritarios)
@@ -145,16 +147,22 @@ Cambios recientes
  - 2025-08-17: Corregidos logs duplicados y inconsistentes en CSRF; eliminado script duplicado en `views/edit.ejs`.
  - 2025-08-17: Añadido script E2E `tests/e2e-edit.js` para validación automática del flujo de edición.
  - 2025-08-17: Documentación actualizada con instrucciones de ejecución y comandos para tests locales.
+ - 2025-08-27: Health check endpoint implementado en `/health` con verificación completa de sistema.
+ - 2025-08-27: Structured logging implementado con Winston - logs HTTP, DB, seguridad y métricas.
+ - 2025-08-27: Integración completa de logger en main.js, database.js y routes.js.
+ - 2025-08-27: Configuración de logging para desarrollo (consola) y producción (archivos).
 
 Pendientes actuales (prioridad alta)
 ----------------------------------
 
 1. [x] Ejecutar e instalar herramientas de lint/format (ESLint + Prettier) para que el workflow CI pase.
 2. [x] Completar pruebas manuales CSRF/sesión y verificar en navegadores (ya documentadas y validadas con script local).
-3. [ ] Implementar tests de integración backend (supertest) o preparar un entorno de pruebas MySQL (nota: `supertest` ya está instalado localmente para pruebas ad-hoc).
-4. [ ] Preparar `.env.production` y checklist de deploy cuando vayan a publicar.
-5. [ ] Habilitar cookie hardening para producción (cookie.secure, SameSite).
-6. [ ] Crear Pull Request de `feature/guia-desarrollo` hacia `main` para revisión.
+3. [x] Implementar tests de integración backend (supertest) con entorno de pruebas MySQL.
+4. [x] Habilitar cookie hardening para producción (cookie.secure, SameSite).
+5. [x] Implementar health check endpoint con verificación de DB.
+6. [x] Implementar structured logging con Winston para desarrollo y producción.
+7. [ ] Preparar `.env.production` y checklist de deploy cuando vayan a publicar.
+8. [ ] Crear Pull Request de `feature/guia-desarrollo` hacia `main` para revisión.
 
 Instrucciones rápidas para correr y probar localmente
 ----------------------------------------------------

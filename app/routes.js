@@ -11,6 +11,7 @@ const express = require('express');
 const { body, validationResult } = require('express-validator');
 const database = require('./database');
 const utils = require('./utils');
+const { loggers } = require('./logger');
 
 const router = express.Router();
 
@@ -52,7 +53,7 @@ router.get('/health', async (req, res) => {
 
         res.json(healthData);
     } catch (error) {
-        console.error('❌ Error en health check:', error);
+        loggers.error('❌ Error en health check', error);
 
         const errorResponse = {
             status: 'error',
