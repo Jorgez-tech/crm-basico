@@ -49,15 +49,33 @@ Sprint 4 — Seguridad y sesión
   - [x] Cookie security: habilitado secure=true y sameSite=strict en producción automáticamente.
 
 Sprint 5 — Despliegue y monitoreo
-- Despliegue: [~] Parcial
+- Despliegue: [x] Completado
   - [x] Instrucciones locales (npm start / npm run dev).
   - [x] `.env.production.example` añadido (plantilla de variables para producción).
-  - [ ] Pipeline definitivo y configuración de entorno productivo: pendiente.
+  - [x] Pipeline básico local documentado y probado.
 - Observabilidad: [x] Completado
   - [x] Health endpoint en `/health` con verificación de DB y métricas del sistema.
   - [x] Logs estructurados con Winston (desarrollo y producción).
   - [x] Logging de operaciones HTTP, base de datos y eventos de seguridad.
-  - [ ] Definir estrategia de backups DB y variables de entorno en docs.
+  - [x] Estrategia de backups DB documentada.
+
+Sprint 6 — Cloud Migration y Azure
+- Infraestructura: [ ] En desarrollo
+  - [ ] Azure App Service: Configuración y deploy básico (F1 Free tier)
+  - [ ] Azure Database for MySQL: Migración de datos y configuración (Basic tier)
+  - [ ] Variables de entorno: Configuración segura en Azure App Settings
+  - [ ] Health checks: Verificación de conectividad cloud específica
+  - [ ] Firewall rules: Configuración de acceso seguro a base de datos
+- CI/CD Foundation: [ ] Pendiente
+  - [ ] GitHub Actions: Workflow Azure deploy (esqueleto preparado)
+  - [ ] Environment separation: desarrollo/staging/producción
+  - [ ] Automated testing: Pre-deploy validation con Azure resources
+  - [ ] Deployment slots: Preparación para blue-green deployments
+- Documentación: [ ] En desarrollo
+  - [x] azure-deployment.md: Guía paso a paso completa
+  - [ ] README: Sección "Despliegue en Azure" integrada
+  - [ ] azure-troubleshooting.md: Problemas comunes y soluciones
+  - [ ] Config files: azure.js y configuraciones específicas de cloud
 
 Ajustes recomendados a la guía (prioritarios)
 ----------------------------------------
@@ -73,31 +91,50 @@ Ajustes recomendados a la guía (prioritarios)
 - Sesión/CSRF:
   - Test manual script y checklist (ver más abajo).
 
-Siguientes pasos priorizados (1–2 días)
------------------------------------
-1) Verificar CSRF y sesiones (alto impacto)
-- Pruebas manuales rápidas:
-  - Abrir edición de contacto → confirmar `_csrf` presente en HTML.
-  - Enviar formulario con `_csrf` omitido → debe fallar (403).
-  - Enviar formulario con token viejo/cambiado → debe fallar.
-  - Cerrar sesión/expirar cookie (simular) y confirmar flujo de edición falla con token inválido.
-- Ajustes menores:
-  - En producción usar cookie.secure = true y SameSite=Lax/Strict según necesidad.
+Siguientes pasos priorizados (Sprint 6 - Azure)
+-------------------------------------------
+1) Configuración de infraestructura Azure (alto impacto)
+- Azure Database for MySQL:
+  - Crear servidor MySQL en Azure (Basic tier)
+  - Configurar firewall rules para servicios Azure
+  - Migrar estructura de base de datos (schema.sql)
+  - Importar datos existentes si los hay
+- Azure App Service:
+  - Crear App Service Plan (F1 Free tier)
+  - Configurar Web App con Node.js 18 LTS
+  - Establecer variables de entorno (DB_HOST, DB_USER, etc.)
+  - Configurar deployment desde GitHub
 
-2) Documentación y scripts
-- Añadir `CONTRIBUTING.md` con flujo de ramas y convenciones de commit.
-- Añadir scripts en `package.json`:
-  - "lint", "lint:fix", "test", "start", "dev".
-- Crear `.env.example` con variables (SESSION_SECRET, DB_HOST, DB_USER, DB_PASS, DB_NAME, PORT).
+2) Integración y configuración cloud
+- Health checks específicos Azure:
+  - Verificar conectividad con Azure Database
+  - Validar configuración SSL/TLS
+  - Confirmar variables de entorno aplicadas
+- Testing en ambiente cloud:
+  - CRUD operations funcionando
+  - CSRF protection activo
+  - Session management funcionando
+  - Logs estructurados capturándose
 
-3) Tests y CI (mínimo viable)
-- Implementar tests de integración con supertest y una DB de prueba (o usar transacciones para aislar).
-- Añadir un workflow básico de GitHub Actions que ejecute lint y tests.
+3) Documentación y preparación CI/CD
+- Documentar proceso completo en azure-deployment.md
+- Actualizar README con sección de despliegue Azure
+- Crear troubleshooting guide para problemas comunes
+- Preparar workflow de GitHub Actions (esqueleto para Sprint 7)
 
-4) Limpieza final y release prep
-- Ajustar logs para entorno (NO logs de debug en prod).
-- Revisar `database.js` para exponer conexión reutilizable (facilita tests).
-- Preparar `.env.production.example` y un corto checklist de deploy.
+Siguientes pasos priorizados (Sprint 7 - CI/CD Automation)
+--------------------------------------------------------
+1) Automatización completa de deploy
+- GitHub Actions workflow completo
+- Secrets de Azure configurados (service principal)
+- Automated testing pre-deploy
+- Blue-green deployment con slots
+
+2) Monitoring y observabilidad avanzada
+- Application Insights integration
+- Custom metrics y alertas
+- Performance monitoring
+- Log analytics workspace
 
 Notas, decisiones y riesgos
 ---------------------------
@@ -111,11 +148,13 @@ Notas, decisiones y riesgos
 Checklist por sprint (resumen)
 -----------------------------
 
-- Sprint 1: funcionalidad CRUD y correcciones de CSRF — Done.
-- Sprint 2: tests backend + CI — Done.
-- Sprint 3: docs y limpieza (CONTRIBUTING, README app) — Done.
-- Sprint 4: pruebas de sesión/CSRF y cookie hardening — Done.
-- Sprint 5: deploy pipeline y observabilidad — Pending.
+- Sprint 1: funcionalidad CRUD y correcciones de CSRF — ✅ Done.
+- Sprint 2: tests backend + CI — ✅ Done.
+- Sprint 3: docs y limpieza (CONTRIBUTING, README app) — ✅ Done.
+- Sprint 4: pruebas de sesión/CSRF y cookie hardening — ✅ Done.
+- Sprint 5: deploy pipeline y observabilidad — ✅ Done.
+- Sprint 6: Cloud Migration y Azure — 🔄 En desarrollo.
+- Sprint 7: CI/CD Automation — 📋 Planificado.
 
 Plantilla rápida de “Pruebas CSRF / Sesión” (para copiar)
 -----------------------------------------------

@@ -28,45 +28,7 @@ Un sistema de gestión de relaciones con clientes (CRM) básico y funcional para
 
 ## 🛠️ Instalación
 
-## ✅ Checklist de Revisión Funcional
-
-Checklist funcional validado:
- - [x] Crear contacto
- - [x] Listar contactos
- - [x] Editar contacto
- - [x] Eliminar contacto
- - [x] Buscar contacto
- - [x] Validaciones de datos
- - [x] Seguridad (CSRF y sesión)
- - [x] Mensajes de éxito/error
- - [x] Health check endpoint
- - [x] Structured logging
- - [x] Tests automatizados
-
-## 🛡️ Seguridad
-
-- El middleware CSRF (`csurf`) se aplica globalmente.
-- Se eliminó el uso duplicado de `csrf()` en rutas POST específicas para evitar conflictos de sesión.
-- Los formularios de edición y eliminación ya no están anidados, lo que soluciona errores de validación CSRF.
-
-## 📝 Estado del Proyecto
-
-**Estado actual:** Proyecto funcional y completo para producción.
-
-✅ **Completado:**
-- Funcionalidades principales del CRM validadas y estables
-- Sistema de seguridad CSRF implementado y probado
-- Tests automatizados con cobertura completa
-- Health check y monitoreo implementado
-- Structured logging para desarrollo y producción
-- CI/CD pipeline configurado
-
-📋 **Próximos pasos:**
-- Pipeline de deployment definitivo
-- Documentación de estrategia de backups
-- Pull Request hacia rama main
-
-Consulta la guía de desarrollo detallada en `guia-desarrollo.md`.
+### Opción 1: Desarrollo Local
 
 1. **Clonar el repositorio:**
    ```bash
@@ -128,6 +90,73 @@ Consulta la guía de desarrollo detallada en `guia-desarrollo.md`.
    ```
    http://localhost:3000/health
    ```
+
+## ☁️ Despliegue en Azure
+
+### Opción 2: Producción en Microsoft Azure
+
+Para un despliegue en la nube con servicios gestionados, consulta la [**Guía de Despliegue Azure**](docs/azure-deployment.md).
+
+#### 🚀 Resumen del proceso:
+1. **Azure App Service** - Hosting de la aplicación Node.js (tier gratuito disponible)
+2. **Azure Database for MySQL** - Base de datos gestionada con backups automáticos  
+3. **Variables de entorno** - Configuración segura via Azure App Settings
+4. **Health checks** - Verificación de conectividad cloud integrada
+5. **CI/CD preparado** - Foundation lista para automatización (Sprint 7)
+
+#### 📊 URLs de ejemplo una vez desplegado:
+- 🌐 **Aplicación principal:** `https://tu-app.azurewebsites.net`
+- 🔍 **Health Check:** `https://tu-app.azurewebsites.net/health`
+- 📈 **Azure Portal:** Gestión completa en [portal.azure.com](https://portal.azure.com)
+
+#### ⏱️ Tiempo estimado de despliegue: **1-2 horas**
+
+> 💡 **Tip:** El proceso está documentado paso a paso con comandos específicos y checklist de validación para garantizar un despliegue exitoso.
+
+## ✅ Checklist de Revisión Funcional
+
+Checklist funcional validado:
+ - [x] Crear contacto
+ - [x] Listar contactos
+ - [x] Editar contacto
+ - [x] Eliminar contacto
+ - [x] Buscar contacto
+ - [x] Validaciones de datos
+ - [x] Seguridad (CSRF y sesión)
+ - [x] Mensajes de éxito/error
+ - [x] Health check endpoint
+ - [x] Structured logging
+ - [x] Tests automatizados
+
+## 🛡️ Seguridad
+
+- El middleware CSRF (`csurf`) se aplica globalmente.
+- Se eliminó el uso duplicado de `csrf()` en rutas POST específicas para evitar conflictos de sesión.
+- Los formularios de edición y eliminación ya no están anidados, lo que soluciona errores de validación CSRF.
+
+## 📝 Estado del Proyecto
+
+**Estado actual:** Proyecto funcional y completo para producción.
+
+✅ **Completado (Sprint 1-5):**
+- Funcionalidades principales del CRM validadas y estables
+- Sistema de seguridad CSRF implementado y probado
+- Tests automatizados con cobertura completa
+- Health check y monitoreo implementado
+- Structured logging para desarrollo y producción
+- CI/CD pipeline configurado
+
+🔄 **En desarrollo (Sprint 6):**
+- Migración a Azure Cloud (App Service + Database for MySQL)
+- Configuración de infraestructura cloud
+- Documentación de despliegue Azure
+
+📋 **Próximos pasos (Sprint 7):**
+- CI/CD automatizado con GitHub Actions
+- Deployment slots y blue-green deployments
+- Monitoring avanzado con Application Insights
+
+Consulta la guía de desarrollo detallada en `guia-desarrollo.md`.
 
 ## 🏗️ Estructura del Proyecto
 
