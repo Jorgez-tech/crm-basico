@@ -1,6 +1,30 @@
 # Guía de Despliegue en Azure - CRM Básico
 
-## 📋 Resumen Ejecutivo
+## � Consideraciones de Seguridad
+
+⚠️ **IMPORTANTE:** Esta guía contiene patrones y ejemplos. PERSONALIZA todos los valores antes de usar:
+
+### **❌ NUNCA compartir públicamente:**
+- Passwords de base de datos
+- SESSION_SECRET values
+- Connection strings completos
+- API keys o tokens
+
+### **✅ Seguro personalizar y documentar:**
+- Nombres de Resource Groups
+- Nombres de App Services  
+- Nombres de servidores MySQL
+- Regiones de Azure
+
+### **🛡️ Buenas prácticas:**
+1. **Usa nombres únicos:** Agrega sufijo personal (iniciales + números)
+2. **Passwords fuertes:** Mínimo 12 caracteres, números, símbolos
+3. **Variables de entorno:** Nunca hardcodear en código fuente
+4. **Backup de credenciales:** Guarda en gestor de passwords seguro
+
+---
+
+## �📋 Resumen Ejecutivo
 
 Esta guía documenta el proceso completo para desplegar el CRM Básico en Microsoft Azure utilizando servicios gestionados. El proceso está diseñado para ser reproducible, trazable y escalable.
 
@@ -106,17 +130,25 @@ az account set --subscription "TU_SUBSCRIPTION_ID"
 #### B1. Crear Azure Database for MySQL
 
 ```bash
+# IMPORTANTE: Personaliza estos nombres para tu proyecto
+# Reemplaza [tu-sufijo] con algo único (ej: tus iniciales + números)
+export RESOURCE_GROUP="rg-crm-[tu-sufijo]"
+export MYSQL_SERVER="mysql-crm-[tu-sufijo]"
+export APP_SERVICE="crm-app-[tu-sufijo]"
+export MYSQL_ADMIN="crmadmin"
+export MYSQL_PASSWORD="[TuPasswordSuperSeguro123!]"
+
 # Crear resource group
 az group create \
-  --name rg-crm-basico \
+  --name $RESOURCE_GROUP \
   --location "East US"
 
 # Crear servidor MySQL
 az mysql server create \
-  --resource-group rg-crm-basico \
-  --name mysql-crm-basico-server \
-  --admin-user crmadmin \
-  --admin-password "TuPasswordSeguro123!" \
+  --resource-group $RESOURCE_GROUP \
+  --name $MYSQL_SERVER \
+  --admin-user $MYSQL_ADMIN \
+  --admin-password $MYSQL_PASSWORD \
   --sku-name B_Gen5_1 \
   --version 8.0 \
   --storage-size 5120
