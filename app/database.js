@@ -14,9 +14,10 @@ const { loggers } = require('./logger');
 const dbConfig = {
     host: process.env.DB_HOST || '127.0.0.1',
     user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASSWORD || 'mysql',
+    password: process.env.DB_PASS || 'mysql',
     database: process.env.DB_NAME || 'crm_basico',
     port: process.env.DB_PORT || 3306,
+    ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0
