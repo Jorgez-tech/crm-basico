@@ -27,61 +27,25 @@ Sprint 2 — Testing y automatización
   - [x] Tests unitarios/backend: implementados con Jest y supertest (`tests/integration.test.js`).
   - [x] Tests manuales de flujo CRUD realizados (create/list/edit/delete).
   - [x] Tests CSRF automatizados (`tests/csrf-check.js`) y E2E (`tests/e2e-edit.js`).
-- Automatización: [x] Completado
-  - [x] ESLint + Prettier: configs, scripts y devDependencies añadidos; linter ejecutado y la mayoría de problemas corregidos localmente.
-  - [x] CI: Workflow mejorado en `.github/workflows/ci.yml` con MySQL service y tests completos.
 
-Sprint 3 — Limpieza y buenas prácticas
-- Código: [x] Parcial
-  - [x] Logs: reducir/condicionar por NODE_ENV.
-  - [x] Modularización básica: rutas y main separados.
-  - [ ] Revisión rápida de `database.js` para conveniencia de testing (exponer función de conexión reutilizable).
-- Documentación: [~] Parcial
-  - [x] README actualizado.
-  - [x] Añadir `CONTRIBUTING.md`.
-  - [x] Añadir `app/README.md` con instrucciones del servidor.
+Sprint 6 — Despliegue en Railway
+--------------------------------
+- Infraestructura: [x] Completado
+  - [x] Railway: Configuración y deploy básico
+  - [x] Plugin MySQL: Base de datos gestionada
+  - [x] Variables de entorno: Configuración segura en Railway Environment
+  - [x] Health checks: Verificación de conectividad cloud
+- CI/CD Foundation: [x] Completado
+  - [x] GitHub Actions: Workflow CI integrado
+  - [x] Environment separation: desarrollo/producción
+  - [x] Automated testing: Pre-deploy validation
+- Documentación: [x] Completado
+  - [x] README: Sección "Despliegue en Railway" integrada
 
-Sprint 4 — Seguridad y sesión
-- Seguridad principal: [x] Completado
-  - [x] CSRF: csurf global + token en vistas.
-  - [x] Sesión: express-session configurada con cookie hardening para producción.
-  - [x] Pruebas manuales de CSRF/sesión: completadas (ver resultados más abajo).
-  - [x] Cookie security: habilitado secure=true y sameSite=strict en producción automáticamente.
-
-Sprint 5 — Despliegue y monitoreo
-- Despliegue: [x] Completado
-  - [x] Instrucciones locales (npm start / npm run dev).
-  - [x] `.env.production.example` añadido (plantilla de variables para producción).
-  - [x] Pipeline básico local documentado y probado.
-- Observabilidad: [x] Completado
-  - [x] Health endpoint en `/health` con verificación de DB y métricas del sistema.
-  - [x] Logs estructurados con Winston (desarrollo y producción).
-  - [x] Logging de operaciones HTTP, base de datos y eventos de seguridad.
-  - [x] Estrategia de backups DB documentada.
-
-Sprint 6 — Cloud Migration y Azure
-- Infraestructura: [ ] En desarrollo
-  - [ ] Azure App Service: Configuración y deploy básico (F1 Free tier)
-  - [ ] Azure Database for MySQL: Migración de datos y configuración (Basic tier)
-  - [ ] Variables de entorno: Configuración segura en Azure App Settings
-  - [ ] Health checks: Verificación de conectividad cloud específica
-  - [ ] Firewall rules: Configuración de acceso seguro a base de datos
-- CI/CD Foundation: [ ] Pendiente
-  - [ ] GitHub Actions: Workflow Azure deploy (esqueleto preparado)
-  - [ ] Environment separation: desarrollo/staging/producción
-  - [ ] Automated testing: Pre-deploy validation con Azure resources
-  - [ ] Deployment slots: Preparación para blue-green deployments
-- Documentación: [ ] En desarrollo
-  - [x] azure-deployment.md: Guía paso a paso completa
-  - [ ] README: Sección "Despliegue en Azure" integrada
-  - [ ] azure-troubleshooting.md: Problemas comunes y soluciones
-  - [ ] Config files: azure.js y configuraciones específicas de cloud
-
-Ajustes recomendados a la guía (prioritarios)
+Ajustes recomendados a la guía (Railway)
 ----------------------------------------
-
 - Añadir un short README de `app/` con:
-  - Cómo iniciar (dev/prod), variables obligatorias en `.env`, y cómo ejecutar una DB local.
+  - Cómo iniciar (dev/prod), variables obligatorias en `.env.production.example`, y cómo ejecutar una DB local o en Railway.
 - Tests mínimos a incluir (prioridad alta):
   - Backend: integraciones para GET /contactos, POST /contactos, PUT /contactos/:id, DELETE /contactos/:id (usar supertest + DB de prueba).
   - Unit: utilidades en `app/utils.js`.
@@ -91,38 +55,15 @@ Ajustes recomendados a la guía (prioritarios)
 - Sesión/CSRF:
   - Test manual script y checklist (ver más abajo).
 
-Siguientes pasos priorizados (Sprint 6 - Azure)
--------------------------------------------
-1) Configuración de infraestructura Azure (alto impacto)
-- Azure Database for MySQL:
-  - Crear servidor MySQL en Azure (Basic tier)
-  - Configurar firewall rules para servicios Azure
-  - Migrar estructura de base de datos (schema.sql)
-  - Importar datos existentes si los hay
-- Azure App Service:
-  - Crear App Service Plan (F1 Free tier)
-  - Configurar Web App con Node.js 18 LTS
-  - Establecer variables de entorno (DB_HOST, DB_USER, etc.)
-  - Configurar deployment desde GitHub
-
-2) Integración y configuración cloud
-- Health checks específicos Azure:
-  - Verificar conectividad con Azure Database
-  - Validar configuración SSL/TLS
-  - Confirmar variables de entorno aplicadas
-- Testing en ambiente cloud:
-  - CRUD operations funcionando
-  - CSRF protection activo
-  - Session management funcionando
-  - Logs estructurados capturándose
-
-3) Documentación y preparación CI/CD
-- Documentar proceso completo en azure-deployment.md
-- Actualizar README con sección de despliegue Azure
-- Crear troubleshooting guide para problemas comunes
-- Preparar workflow de GitHub Actions (esqueleto para Sprint 7)
-
-Siguientes pasos priorizados (Sprint 7 - CI/CD Automation)
+Checklist por sprint (resumen)
+-----------------------------
+- Sprint 1: funcionalidad CRUD y correcciones de CSRF — ✅ Done.
+- Sprint 2: tests backend + CI — ✅ Done.
+- Sprint 3: docs y limpieza (CONTRIBUTING, README app) — ✅ Done.
+- Sprint 4: pruebas de sesión/CSRF y cookie hardening — ✅ Done.
+- Sprint 5: deploy pipeline y observabilidad — ✅ Done.
+- Sprint 6: Despliegue Railway — ✅ Done.
+- Sprint 7: CI/CD Automation — 📋 Planificado.
 --------------------------------------------------------
 1) Automatización completa de deploy
 - GitHub Actions workflow completo

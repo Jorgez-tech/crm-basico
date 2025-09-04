@@ -8,10 +8,15 @@ Iniciar en desarrollo:
 npm run dev
 ```
 
-Variables de entorno (ver `.env.example`):
+
+Variables de entorno (ver `.env.production.example`):
 - PORT
-- DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT
+- DB_HOST, DB_USER, DB_PASS, DB_NAME, DB_PORT
 - SESSION_SECRET
+
+Configuración Railway:
+- Las variables de entorno se configuran en el dashboard de Railway.
+- Puedes usar el plugin MySQL de Railway para obtener los datos de conexión.
 
 Notas:
 - `app/main.js` es el punto de entrada.
@@ -37,14 +42,15 @@ node tests/csrf-check.js
 node tests/e2e-edit.js
 ```
 
+
 Variables de entorno mínimas requeridas (ejemplo):
 
-```
-PORT=3000
-DB_HOST=127.0.0.1
+```env
+PORT=8080
+DB_HOST=localhost
 DB_PORT=3306
-DB_USER=root
-DB_PASSWORD=mysql
+DB_USER=prod_user
+DB_PASS=MySQL2025#Safe!Pass
 DB_NAME=crm_basico
 SESSION_SECRET=alguna_clave_segura
 ```

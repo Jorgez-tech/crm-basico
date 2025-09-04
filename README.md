@@ -91,27 +91,35 @@ Un sistema de gestión de relaciones con clientes (CRM) básico y funcional para
    http://localhost:3000/health
    ```
 
-## ☁️ Despliegue en Azure
 
-### Opción 2: Producción en Microsoft Azure
+## ☁️ Despliegue en Railway
 
-Para un despliegue en la nube con servicios gestionados, consulta la [**Guía de Despliegue Azure**](docs/azure-deployment.md).
+### Opción 2: Producción en Railway
 
-#### 🚀 Resumen del proceso:
-1. **Azure App Service** - Hosting de la aplicación Node.js (tier gratuito disponible)
-2. **Azure Database for MySQL** - Base de datos gestionada con backups automáticos  
-3. **Variables de entorno** - Configuración segura via Azure App Settings
-4. **Health checks** - Verificación de conectividad cloud integrada
-5. **CI/CD preparado** - Foundation lista para automatización (Sprint 7)
+Para desplegar el proyecto en Railway, sigue estos pasos:
 
-#### 📊 URLs de ejemplo una vez desplegado:
-- 🌐 **Aplicación principal:** `https://tu-app.azurewebsites.net`
-- 🔍 **Health Check:** `https://tu-app.azurewebsites.net/health`
-- 📈 **Azure Portal:** Gestión completa en [portal.azure.com](https://portal.azure.com)
+1. **Crea una cuenta en Railway:**
+   [https://railway.app/](https://railway.app/)
 
-#### ⏱️ Tiempo estimado de despliegue: **1-2 horas**
+2. **Importa el repositorio:**
+   - Desde el dashboard de Railway, selecciona "New Project" y conecta tu repositorio de GitHub.
 
-> 💡 **Tip:** El proceso está documentado paso a paso con comandos específicos y checklist de validación para garantizar un despliegue exitoso.
+3. **Configura las variables de entorno:**
+   - Agrega las variables de entorno necesarias (`DB_HOST`, `DB_USER`, `DB_PASS`, `DB_NAME`, `PORT`, `SESSION_SECRET`, etc.) en la sección "Environment" de Railway.
+
+4. **Agrega un plugin de MySQL:**
+   - Railway permite crear una base de datos MySQL gestionada. El plugin te dará los datos de conexión.
+
+5. **Despliega la aplicación:**
+   - Railway detecta automáticamente el proyecto Node.js y ejecuta `npm start`.
+
+6. **Verifica el despliegue:**
+   - Accede a la URL pública que Railway te proporciona.
+   - Verifica el endpoint `/health` para comprobar el estado.
+
+#### ⏱️ Tiempo estimado de despliegue: **5-10 minutos**
+
+> 💡 **Tip:** Railway gestiona automáticamente el build y despliegue. Solo asegúrate de tener las variables de entorno correctas y la base de datos configurada.
 
 ## ✅ Checklist de Revisión Funcional
 
