@@ -249,22 +249,10 @@ CREATE TABLE contacto_categorias (
 1. **Agregar contacto:** Completa el formulario en la página principal
 2. **Ver contactos:** La lista se muestra automáticamente
 3. **Editar contacto:** Haz clic en "Editar" junto al contacto
-4. **Eliminar contacto:** Haz clic en "Eliminar" (requiere confirmación)
-
-### Funcionalidades Avanzadas
-
-- **Búsqueda:** Usa la barra de búsqueda para filtrar contactos
-- **Filtros:** Filtra por estado (prospecto, cliente, inactivo)
 - **Health check:** Verifica el estado del sistema en `/health`
 - **Logs:** Revisa los logs del sistema (archivos en `logs/` en producción)
-
-## 🧪 Testing
-
 El proyecto incluye un sistema completo de testing:
 
-```bash
-# Ejecutar todos los tests
-npm test
 
 # Tests de integración
 npm run test:integration
@@ -272,21 +260,10 @@ npm run test:integration
 # Tests CSRF específicos
 node tests/csrf-check.js
 
-# Tests E2E
-node tests/e2e-edit.js
-```
-
 ### Tipos de tests incluidos:
-- **Integration tests:** Tests completos de rutas y funcionalidad
-- **CSRF tests:** Verificación de protección CSRF
-- **API tests:** Tests de endpoints JSON
-- **E2E tests:** Tests de flujo completo de usuario
 
 ## 🛡️ Seguridad
-
-- **Helmet.js:** Protección contra vulnerabilidades comunes
 - **CSRF:** Protección contra ataques de falsificación de peticiones
-- **Cookie hardening:** Cookies seguras en producción (secure, sameSite)
 - **Validación:** Validación de datos en servidor con express-validator
 - **Sanitización:** Limpieza de datos de entrada
 - **Structured logging:** Registro de eventos de seguridad
