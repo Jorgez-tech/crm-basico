@@ -10,7 +10,8 @@
 const express = require('express');
 const path = require('path');
 const helmet = require('helmet');
-const session = require('express-session');
+// Bloque 5: Reemplazo de MemoryStore por cookie-session para producción
+const cookieSession = require('cookie-session');
 const cookieParser = require('cookie-parser');
 const csrf = require('csurf');
 const bodyParser = require('body-parser');
@@ -21,7 +22,9 @@ const database = require('./database');
 const { loggers, httpLoggerMiddleware } = require('./logger');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+// Bloque 1: Verificación del puerto para Railway
+// Usar process.env.PORT asignado por Railway, nunca un puerto fijo
+const PORT = process.env.PORT;
 
 // ==================== CONFIGURACIÓN DE SEGURIDAD ====================
 
@@ -53,16 +56,13 @@ app.use(helmet.contentSecurityPolicy({
 
 // ==================== CONFIGURACIÓN DE SESIONES ====================
 app.use(cookieParser());
-app.use(session({
-    secret: process.env.SESSION_SECRET || 'crm_basico_secret_key_' + Math.random().toString(36).substring(2, 15),
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-        secure: process.env.NODE_ENV === 'production', // HTTPS en producción
-        httpOnly: true,
-        maxAge: 24 * 60 * 60 * 1000, // 24 horas
-        sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax' // Protección CSRF mejorada en prod
-    }
+app.use(cookieSession({
+    name: 'session',
+    keys: [process.env.SESSION_SECRET || 'crm_basico_secret_key_' + Math.random().toString(36).substring(2, 15)],
+    maxAge: 24 * 60 * 60 * 1000,
+    secure: process.env.NODE_ENV === 'production',
+    httpOnly: true,
+    sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax'
 }));
 
 // Configuración de CSRF

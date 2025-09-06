@@ -10,7 +10,8 @@
 const mysql = require('mysql2/promise');
 const { loggers } = require('./logger');
 
-// Configuración de la base de datos
+// Bloque 4: Validación de variables de entorno para la base de datos
+// Usar variables Railway: DB_HOST, DB_USER, DB_PASS, DB_NAME, DB_PORT, DB_SSL
 const dbConfig = {
     host: process.env.DB_HOST || '127.0.0.1',
     user: process.env.DB_USER || 'root',

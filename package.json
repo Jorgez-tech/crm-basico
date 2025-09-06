@@ -4,7 +4,8 @@
   "description": "Sistema CRM básico para gestión de contactos y clientes pequeños negocios",
   "main": "app/main.js",
   "scripts": {
-    "start": "node app/main.js",
+  // Bloque 3: startCommand para Railway
+  "start": "node app/main.js",
     "dev": "nodemon app/main.js",
     "test": "jest --detectOpenHandles --forceExit",
     "test:integration": "jest tests/integration.test.js --detectOpenHandles --forceExit",

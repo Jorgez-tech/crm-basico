@@ -16,6 +16,18 @@ const { loggers } = require('./logger');
 const router = express.Router();
 
 // ==================== HEALTH CHECK ====================
+// Bloque 6: Ruta /status para monitoreo de app y base de datos
+router.get('/status', async (req, res) => {
+    let dbStatus = false;
+    try {
+        dbStatus = await database.checkConnection();
+    } catch (e) { }
+    res.json({
+        app: 'ok',
+        db: dbStatus ? 'connected' : 'disconnected',
+        timestamp: new Date().toISOString()
+    });
+});
 /**
  * GET /health - Health check endpoint para monitoreo
  * Verifica estado del servidor y conexión a la base de datos
