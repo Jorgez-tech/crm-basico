@@ -12,13 +12,14 @@ const { loggers } = require('./logger');
 
 // Bloque 4: Validación de variables de entorno para la base de datos
 // Usar variables Railway: DB_HOST, DB_USER, DB_PASS, DB_NAME, DB_PORT, DB_SSL
+// Prioridad: MYSQL_* (Railway internos) > DB_* (custom) > defaults
 const dbConfig = {
-    host: process.env.DB_HOST || '127.0.0.1',
-    user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASS || 'mysql',
-    database: process.env.DB_NAME || 'crm_basico',
-    port: process.env.DB_PORT || 3306,
-    ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
+    host: process.env.MYSQLHOST || process.env.DB_HOST || '127.0.0.1',
+    user: process.env.MYSQLUSER || process.env.DB_USER || 'root',
+    password: process.env.MYSQLPASSWORD || process.env.DB_PASS || 'mysql',
+    database: process.env.MYSQLDATABASE || process.env.DB_NAME || 'crm_basico',
+    port: process.env.MYSQLPORT || process.env.DB_PORT || 3306,
+    ssl: (process.env.DB_SSL === 'true' || process.env.MYSQL_SSL === 'true') ? { rejectUnauthorized: false } : false,
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0
