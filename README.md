@@ -50,5 +50,7 @@ Este proyecto fue migrado y estabilizado en la plataforma Railway. A continuaci�
 3.  **Variables de Entorno:** Es vital adaptar el código para que sea compatible con las variables específicas de la plataforma (ej. `MYSQLHOST` de Railway) para optimizar la conexión y evitar costos.
 4.  **Caché de Despliegue:** Las plataformas de despliegue pueden usar cachés que causan inconsistencias. Forzar una limpieza de caché es una técnica efectiva para asegurar un despliegue limpio.
 
+# Enlace de Producción
+https://crm-basico-production.up.railway.app/
 ---
 **Autor:** Jorge Zuta — [@Jorgez-tech](https://github.com/Jorgez-tech)
