@@ -1,61 +1,54 @@
 # CRM Básico
 
-# CRM Básico
+Sistema CRM simple para gestión de contactos y clientes, desarrollado con Node.js, Express y MySQL.
 
-Sistema CRM simple para gestión de contactos y clientes. Desarrollado con Node.js, Express, MySQL y EJS.
+## 🚀 Tecnologías Principales
+- **Backend:** Node.js, Express
+- **Base de Datos:** MySQL (con `mysql2`)
+- **Frontend:** EJS (Embedded JavaScript templates)
+- **Seguridad:** Helmet, csurf (CSRF protection), express-validator
+- **Sesiones:** cookie-session
 
-## 🚀 Tecnologías
-- Node.js >=16
-- Express
-- MySQL2
-- EJS
-- cookie-session
-- Helmet, CSRF, express-validator
+## 🏁 Inicio Rápido Local
+1.  **Clonar el repositorio:**
+    ```bash
+    git clone https://github.com/Jorgez-tech/crm-basico.git
+    cd crm-basico
+    ```
+2.  **Instalar dependencias:**
+    ```bash
+    npm install
+    ```
+3.  **Configurar la base de datos local:**
+    - Asegúrate de tener un servidor MySQL corriendo.
+    - Ejecuta el script `database_setup.sql` para crear la base de datos y la tabla `contactos`.
+4.  **Iniciar la aplicación:**
+    ```bash
+    npm start
+    ```
+5.  Accede a `http://localhost:3000` en tu navegador.
 
 ## ⚡ Despliegue en Railway
-1. Clona el repositorio y sube a Railway.
-2. Configura las variables de entorno en Railway:
-   - DB_HOST, DB_USER, DB_PASS, DB_NAME, DB_PORT, DB_SSL, SESSION_SECRET, PORT
-3. Agrega el plugin MySQL en Railway y usa los datos de conexión.
-4. El comando de inicio es `node app/main.js` (ya configurado en package.json).
-5. Accede a la URL pública de Railway para ver la app.
-6. Verifica el endpoint `/status` para comprobar el estado de la app y la base de datos.
+La aplicación está configurada para despliegue en Railway.
+1.  Crea un proyecto en Railway y conéctalo a este repositorio.
+2.  Añade un servicio de base de datos MySQL.
+3.  Railway inyectará automáticamente las variables de entorno (`MYSQLHOST`, `MYSQLUSER`, etc.). El código está adaptado para usarlas.
+4.  El comando de inicio `npm start` se ejecutará automáticamente.
 
-## 🗄️ Inicializar base de datos
-Ejecuta este SQL en tu MySQL:
-```sql
-CREATE DATABASE crm_basico;
-USE crm_basico;
-CREATE TABLE contactos (
-   id INT AUTO_INCREMENT PRIMARY KEY,
-   nombre VARCHAR(255) NOT NULL,
-   correo VARCHAR(255) NOT NULL UNIQUE,
-   telefono VARCHAR(20),
-   empresa VARCHAR(255),
-   estado ENUM('prospecto', 'cliente', 'inactivo') DEFAULT 'prospecto',
-   fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-   fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
-```
+## 📝 Estado Final del Proyecto (Septiembre 2025)
 
-## 🏁 Inicio rápido
-```bash
-npm install
-npm start
-```
-Accede a la app en tu navegador:
-```
-http://localhost:3000
-```
-o la URL pública de Railway.
+Este proyecto fue migrado y estabilizado en la plataforma Railway. A continuación se resume su estado final y los aprendizajes clave del proceso.
 
-## � Endpoints útiles
-- `/` — Interfaz principal CRM
-- `/status` — Estado de la app y base de datos (JSON)
+### Estado Actual
+-   **Despliegue:** La aplicación está en línea y las vistas se renderizan correctamente.
+-   **Base de Datos:** La conexión a la base de datos es estable gracias a la implementación de un **pool de conexiones**, que resuelve errores de "conexión cerrada".
+-   **Incidencia Conocida:** La funcionalidad para **crear nuevos contactos no está operativa**. Aunque la conexión a la base de datos es exitosa, las operaciones de escritura fallan. La causa más probable es una configuración incorrecta de permisos en la base de datos de Railway o un problema con las variables de entorno que impide la escritura.
 
-## ✅ Estado final
-- Proyecto funcional, listo para producción y archivado/escalado.
-- Última URL pública: [https://tu-app.railway.app/](https://tu-app.railway.app/) (actualiza según tu deploy)
+### Aprendizajes Clave
+1.  **Pool de Conexiones:** El uso de un pool (`createPool`) es fundamental para la resiliencia de la conexión a la base de datos en un entorno de producción, evitando caídas por conexiones cerradas.
+2.  **Depuración en la Nube:** La inserción de logs de diagnóstico detallados es crucial para identificar problemas específicos del entorno de despliegue que no ocurren localmente.
+3.  **Variables de Entorno:** Es vital adaptar el código para que sea compatible con las variables específicas de la plataforma (ej. `MYSQLHOST` de Railway) para optimizar la conexión y evitar costos.
+4.  **Caché de Despliegue:** Las plataformas de despliegue pueden usar cachés que causan inconsistencias. Forzar una limpieza de caché es una técnica efectiva para asegurar un despliegue limpio.
 
 ---
 **Autor:** Jorge Zuta — [@Jorgez-tech](https://github.com/Jorgez-tech)
