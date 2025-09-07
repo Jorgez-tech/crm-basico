@@ -187,6 +187,9 @@ router.post('/contactos',
 
     async (req, res) => {
         try {
+            // Log de diagnóstico: Mostrar los datos recibidos del formulario
+            loggers.info('Attempting to create contact with data:', req.body);
+
             // Verificar errores de validación
             const errors = validationResult(req);
             if (!errors.isEmpty()) {
@@ -195,7 +198,7 @@ router.post('/contactos',
             }
 
             // Crear contacto
-            await database.createContacto({
+            const newContactId = await database.createContacto({
                 nombre: req.body.nombre,
                 correo: req.body.correo,
                 telefono: req.body.telefono,
@@ -203,9 +206,18 @@ router.post('/contactos',
                 estado: req.body.estado || 'prospecto'
             });
 
+            // Log de diagnóstico: Confirmar que la inserción fue exitosa
+            loggers.info(`Contact created successfully in DB with ID: ${newContactId}`);
+
             res.redirect(`/?message=${encodeURIComponent('Contacto creado exitosamente')}`);
         } catch (error) {
-            console.error('❌ Error creando contacto:', error);
+            // Log de diagnóstico: Registrar el error exacto al crear el contacto
+            loggers.error('❌ Critical error creating contact:', {
+                errorMessage: error.message,
+                errorCode: error.code,
+                stack: error.stack,
+                requestBody: req.body
+            });
 
             // Verificar si es error de duplicado (correo ya existe)
             if (error.code === 'ER_DUP_ENTRY') {
