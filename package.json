@@ -12,7 +12,8 @@
     "test:csrf": "node tests/csrf-check.js",
     "lint": "eslint . || true",
     "lint:fix": "eslint . --fix || true",
-    "format": "prettier --write . || true"
+    "format": "prettier --write . || true",
+    "cache:bust": "echo 'force cache clear'"
   },
   "keywords": [
     "crm",
