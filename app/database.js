@@ -1,10 +1,6 @@
 /**
  * CRM Básico - Configuración de Base de Datos
- * Maneja la conexión y operaciones con MySQL
- * 
- * TODO: Implementar pool de conexiones
- * TODO: Agregar logging de consultas
- * TODO: Implementar migraciones automáticas
+ * Maneja la conexión y operaciones con MySQL usando un pool de conexiones.
  */
 
 const mysql = require('mysql2/promise');
@@ -25,27 +21,33 @@ const dbConfig = {
     queueLimit: 0
 };
 
-let connection = null;
+// Log de diagnóstico para la configuración de la base de datos
+loggers.info('Database configuration being used:', dbConfig);
+
+let pool = null;
 
 /**
- * Establece conexión con la base de datos
+ * Establece un pool de conexiones con la base de datos
  */
 async function connect() {
     try {
-        connection = await mysql.createConnection(dbConfig);
-        loggers.info('📊 Conectado a MySQL', {
-            threadId: connection.threadId,
+        pool = mysql.createPool(dbConfig);
+
+        // Verificar la conexión obteniendo una del pool
+        const connection = await pool.getConnection();
+        loggers.info('📊 Pool de conexiones a MySQL creado y verificado', {
             host: dbConfig.host,
             database: dbConfig.database,
             port: dbConfig.port
         });
+        connection.release(); // Liberar la conexión de prueba
 
         // Verificar que las tablas existan
         await initializeTables();
 
-        return connection;
+        return pool;
     } catch (error) {
-        loggers.error('❌ Error conectando a MySQL', error, { config: dbConfig });
+        loggers.error('❌ Error creando el pool de conexiones a MySQL', error, { config: dbConfig });
         throw error;
     }
 }
@@ -71,23 +73,8 @@ async function initializeTables() {
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
         `;
 
-        await connection.execute(createContactosTable);
+        await pool.execute(createContactosTable);
         loggers.info('✅ Tabla contactos verificada/creada');
-
-        // TODO: Crear tablas adicionales para funcionalidades futuras
-        /*
-        const createNotasTable = `
-            CREATE TABLE IF NOT EXISTS notas (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                contacto_id INT,
-                nota TEXT,
-                tipo ENUM('llamada', 'email', 'reunion', 'otro') DEFAULT 'otro',
-                fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (contacto_id) REFERENCES contactos(id) ON DELETE CASCADE
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-        `;
-        await connection.execute(createNotasTable);
-        */
 
     } catch (error) {
         loggers.error('❌ Error inicializando tablas', error);
@@ -100,7 +87,7 @@ async function initializeTables() {
  */
 async function getAllContactos() {
     try {
-        const [rows] = await connection.execute(
+        const [rows] = await pool.execute(
             'SELECT * FROM contactos ORDER BY fecha_creacion DESC'
         );
         return rows;
@@ -115,7 +102,7 @@ async function getAllContactos() {
  */
 async function getContactoById(id) {
     try {
-        const [rows] = await connection.execute(
+        const [rows] = await pool.execute(
             'SELECT * FROM contactos WHERE id = ?',
             [id]
         );
@@ -132,7 +119,7 @@ async function getContactoById(id) {
 async function createContacto(contactoData) {
     try {
         const { nombre, correo, telefono, empresa, estado } = contactoData;
-        const [result] = await connection.execute(
+        const [result] = await pool.execute(
             'INSERT INTO contactos (nombre, correo, telefono, empresa, estado) VALUES (?, ?, ?, ?, ?)',
             [nombre, correo, telefono || null, empresa || null, estado || 'prospecto']
         );
@@ -157,7 +144,7 @@ async function createContacto(contactoData) {
 async function updateContacto(id, contactoData) {
     try {
         const { nombre, correo, telefono, empresa, estado } = contactoData;
-        const [result] = await connection.execute(
+        const [result] = await pool.execute(
             'UPDATE contactos SET nombre = ?, correo = ?, telefono = ?, empresa = ?, estado = ? WHERE id = ?',
             [nombre, correo, telefono || null, empresa || null, estado || 'prospecto', id]
         );
@@ -180,7 +167,7 @@ async function updateContacto(id, contactoData) {
  */
 async function deleteContacto(id) {
     try {
-        const [result] = await connection.execute(
+        const [result] = await pool.execute(
             'DELETE FROM contactos WHERE id = ?',
             [id]
         );
@@ -202,7 +189,7 @@ async function deleteContacto(id) {
  */
 async function searchContactos(searchTerm) {
     try {
-        const [rows] = await connection.execute(
+        const [rows] = await pool.execute(
             'SELECT * FROM contactos WHERE nombre LIKE ? OR correo LIKE ? OR empresa LIKE ? ORDER BY fecha_creacion DESC',
             [`%${searchTerm}%`, `%${searchTerm}%`, `%${searchTerm}%`]
         );
@@ -218,10 +205,10 @@ async function searchContactos(searchTerm) {
  */
 async function getStats() {
     try {
-        const [totalRows] = await connection.execute('SELECT COUNT(*) as total FROM contactos');
-        const [prospectoRows] = await connection.execute('SELECT COUNT(*) as prospectos FROM contactos WHERE estado = "prospecto"');
-        const [clienteRows] = await connection.execute('SELECT COUNT(*) as clientes FROM contactos WHERE estado = "cliente"');
-        const [inactivoRows] = await connection.execute('SELECT COUNT(*) as inactivos FROM contactos WHERE estado = "inactivo"');
+        const [totalRows] = await pool.execute('SELECT COUNT(*) as total FROM contactos');
+        const [prospectoRows] = await pool.execute('SELECT COUNT(*) as prospectos FROM contactos WHERE estado = "prospecto"');
+        const [clienteRows] = await pool.execute('SELECT COUNT(*) as clientes FROM contactos WHERE estado = "cliente"');
+        const [inactivoRows] = await pool.execute('SELECT COUNT(*) as inactivos FROM contactos WHERE estado = "inactivo"');
 
         return {
             total: totalRows[0].total,
@@ -241,26 +228,27 @@ async function getStats() {
  */
 async function checkConnection() {
     try {
-        if (!connection) {
+        if (!pool) {
             return false;
         }
-
-        // Ejecutar una consulta simple para verificar la conexión
+        // Obtener una conexión del pool y ejecutar una consulta simple
+        const connection = await pool.getConnection();
         await connection.execute('SELECT 1');
+        connection.release();
         return true;
     } catch (error) {
-        loggers.error('❌ Error verificando conexión', error);
+        // No loguear errores de conexión aquí para no llenar los logs en chequeos de salud
         return false;
     }
 }
 
 /**
- * Cierra la conexión a la base de datos
+ * Cierra el pool de conexiones a la base de datos
  */
 async function close() {
-    if (connection) {
-        await connection.end();
-        loggers.info('🔌 Conexión a base de datos cerrada');
+    if (pool) {
+        await pool.end();
+        loggers.info('🔌 Pool de conexiones a base de datos cerrado');
     }
 }
 
