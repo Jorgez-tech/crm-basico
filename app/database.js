@@ -6,9 +6,8 @@
 const mysql = require('mysql2/promise');
 const { loggers } = require('./logger');
 
-// Bloque 4: Validación de variables de entorno para la base de datos
-// Usar variables Railway: DB_HOST, DB_USER, DB_PASS, DB_NAME, DB_PORT, DB_SSL
-// Prioridad: MYSQL_* (Railway internos) > DB_* (custom) > defaults
+// Configuración de la base de datos
+// Actualización de las variables de entorno para que coincidan con Railway
 const dbConfig = {
     host: process.env.MYSQLHOST || process.env.DB_HOST || '127.0.0.1',
     user: process.env.MYSQLUSER || process.env.DB_USER || 'root',
@@ -57,25 +56,29 @@ async function connect() {
  */
 async function initializeTables() {
     try {
-        // Crear tabla contactos si no existe
-        const createContactosTable = `
-            CREATE TABLE IF NOT EXISTS contactos (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                nombre VARCHAR(255) NOT NULL,
-                correo VARCHAR(255) NOT NULL UNIQUE,
-                telefono VARCHAR(20),
-                empresa VARCHAR(255),
-                estado ENUM('prospecto', 'cliente', 'inactivo') DEFAULT 'prospecto',
-                fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                INDEX idx_estado (estado),
-                INDEX idx_fecha_creacion (fecha_creacion)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-        `;
+        const [tables] = await pool.execute("SHOW TABLES LIKE 'contactos'");
+        loggers.debug('Tablas encontradas:', tables);
 
-        await pool.execute(createContactosTable);
-        loggers.info('✅ Tabla contactos verificada/creada');
-
+        if (tables.length === 0) {
+            loggers.warn('Tabla contactos no encontrada. Intentando crearla...');
+            await pool.execute(`
+                CREATE TABLE contactos (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    nombre VARCHAR(255) NOT NULL,
+                    correo VARCHAR(255) NOT NULL UNIQUE,
+                    telefono VARCHAR(20),
+                    empresa VARCHAR(255),
+                    estado ENUM('prospecto', 'cliente', 'inactivo') DEFAULT 'prospecto',
+                    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                    INDEX idx_estado (estado),
+                    INDEX idx_fecha_creacion (fecha_creacion)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+            `);
+            loggers.info('✅ Tabla contactos creada exitosamente.');
+        } else {
+            loggers.info('✅ Tabla contactos ya existe.');
+        }
     } catch (error) {
         loggers.error('❌ Error inicializando tablas', error);
         throw error;
@@ -119,10 +122,14 @@ async function getContactoById(id) {
 async function createContacto(contactoData) {
     try {
         const { nombre, correo, telefono, empresa, estado } = contactoData;
+        loggers.debug('Intentando insertar contacto:', { nombre, correo, telefono, empresa, estado });
+
         const [result] = await pool.execute(
             'INSERT INTO contactos (nombre, correo, telefono, empresa, estado) VALUES (?, ?, ?, ?, ?)',
             [nombre, correo, telefono || null, empresa || null, estado || 'prospecto']
         );
+
+        loggers.debug('Resultado del INSERT:', result);
 
         loggers.database('INSERT', 'contactos', {
             insertId: result.insertId,
