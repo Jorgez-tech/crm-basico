@@ -12,6 +12,7 @@ const path = require('path');
 const helmet = require('helmet');
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
+const cookieSession = require('cookie-session');
 const csrf = require('csurf');
 const bodyParser = require('body-parser');
 
@@ -63,6 +64,15 @@ app.use(session({
         maxAge: 24 * 60 * 60 * 1000, // 24 horas
         sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax' // Protección CSRF mejorada en prod
     }
+}));
+
+app.use(cookieSession({
+    name: 'session',
+    keys: [process.env.SESSION_SECRET],
+    maxAge: 24 * 60 * 60 * 1000,
+    secure: process.env.NODE_ENV === 'production',
+    httpOnly: true,
+    sameSite: 'lax'
 }));
 
 // Configuración de CSRF
