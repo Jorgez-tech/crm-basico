@@ -54,23 +54,29 @@ async function connect() {
 async function initializeTables() {
     try {
         // Crear tabla contactos si no existe
-        const createContactosTable = `
-            CREATE TABLE IF NOT EXISTS contactos (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                nombre VARCHAR(255) NOT NULL,
-                correo VARCHAR(255) NOT NULL UNIQUE,
-                telefono VARCHAR(20),
-                empresa VARCHAR(255),
-                estado ENUM('prospecto', 'cliente', 'inactivo') DEFAULT 'prospecto',
-                fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                INDEX idx_estado (estado),
-                INDEX idx_fecha_creacion (fecha_creacion)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-        `;
+        const [tables] = await connection.execute("SHOW TABLES LIKE 'contactos'");
+        loggers.debug('Tablas encontradas:', tables);
 
-        await connection.execute(createContactosTable);
-        loggers.info('✅ Tabla contactos verificada/creada');
+        if (tables.length === 0) {
+            loggers.warn('Tabla contactos no encontrada. Intentando crearla...');
+            await connection.execute(`
+                CREATE TABLE contactos (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    nombre VARCHAR(255) NOT NULL,
+                    correo VARCHAR(255) NOT NULL UNIQUE,
+                    telefono VARCHAR(20),
+                    empresa VARCHAR(255),
+                    estado ENUM('prospecto', 'cliente', 'inactivo') DEFAULT 'prospecto',
+                    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                    INDEX idx_estado (estado),
+                    INDEX idx_fecha_creacion (fecha_creacion)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+            `);
+            loggers.info('✅ Tabla contactos creada exitosamente.');
+        } else {
+            loggers.info('✅ Tabla contactos ya existe.');
+        }
 
         // TODO: Crear tablas adicionales para funcionalidades futuras
         /*
@@ -130,10 +136,14 @@ async function getContactoById(id) {
 async function createContacto(contactoData) {
     try {
         const { nombre, correo, telefono, empresa, estado } = contactoData;
+        loggers.debug('Intentando insertar contacto:', { nombre, correo, telefono, empresa, estado });
+
         const [result] = await connection.execute(
             'INSERT INTO contactos (nombre, correo, telefono, empresa, estado) VALUES (?, ?, ?, ?, ?)',
             [nombre, correo, telefono || null, empresa || null, estado || 'prospecto']
         );
+
+        loggers.debug('Resultado del INSERT:', result);
 
         loggers.database('INSERT', 'contactos', {
             insertId: result.insertId,
