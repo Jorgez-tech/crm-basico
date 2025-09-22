@@ -45,13 +45,6 @@ const config = {
             secret: process.env.SESSION_SECRET,
             secure: true, // HTTPS requerido en producción
             sameSite: 'strict'
-        },
-        azure: {
-            // Configuraciones específicas de Azure
-            resourceGroup: process.env.AZURE_RESOURCE_GROUP || 'rg-crm-basico',
-            appServiceName: process.env.AZURE_APP_SERVICE_NAME || 'crm-basico-app',
-            mysqlServerName: process.env.AZURE_MYSQL_SERVER || 'mysql-crm-basico-server',
-            enableApplicationInsights: process.env.AZURE_ENABLE_APP_INSIGHTS === 'true'
         }
     }
 };
