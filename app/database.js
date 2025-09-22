@@ -11,12 +11,13 @@ const mysql = require('mysql2/promise');
 const { loggers } = require('./logger');
 
 // Configuración de la base de datos
+// Actualización de las variables de entorno para que coincidan con Railway
 const dbConfig = {
-    host: process.env.DB_HOST || '127.0.0.1',
-    user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASS || 'mysql',
-    database: process.env.DB_NAME || 'crm_basico',
-    port: process.env.DB_PORT || 3306,
+    host: process.env.MYSQLHOST || '127.0.0.1',
+    user: process.env.MYSQLUSER || 'root',
+    password: process.env.MYSQLPASSWORD || 'mysql',
+    database: process.env.MYSQLDATABASE || 'crm_basico',
+    port: process.env.MYSQLPORT || 3306,
     ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
     waitForConnections: true,
     connectionLimit: 10,
