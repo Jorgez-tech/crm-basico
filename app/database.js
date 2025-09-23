@@ -39,8 +39,9 @@ async function connect() {
         } else {
             // Validar configuración de la base de datos
             if (!dbConfig.host || !dbConfig.user || !dbConfig.database) {
-                console.error('❌ Configuración de la base de datos incompleta:', dbConfig);
-                process.exit(1);
+                const error = new Error('Configuración de la base de datos incompleta');
+                loggers.error('❌ Configuración de la base de datos incompleta:', dbConfig);
+                throw error;
             }
             // Fallback a configuración individual
             pool = mysql.createPool(dbConfig);
@@ -289,12 +290,17 @@ module.exports = {
 };
 
 // Test de conexión inicial
-(async () => {
-    try {
-        await connect(); // Inicializar el pool primero
-        console.log('✅ Conexión a base de datos establecida.');
-    } catch (error) {
-        console.error('❌ Error al conectar a la base de datos:', error.message);
-        process.exit(1);
-    }
-})();
+if (process.env.NODE_ENV !== 'test') {
+    (async () => {
+        try {
+            await connect(); // Inicializar el pool primero
+            console.log('✅ Conexión a base de datos establecida.');
+        } catch (error) {
+            console.error('❌ Error al conectar a la base de datos:', error.message);
+            // Solo terminar el proceso en producción
+            if (process.env.NODE_ENV === 'production') {
+                process.exit(1);
+            }
+        }
+    })();
+}
