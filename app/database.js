@@ -32,13 +32,20 @@ let pool = null;
  */
 async function connect() {
     try {
-        // Validar configuración de la base de datos
-        if (!dbConfig.uri && (!dbConfig.host || !dbConfig.user || !dbConfig.database)) {
-            console.error('❌ Configuración de la base de datos incompleta:', dbConfig);
-            process.exit(1);
+        // Priorizar MYSQL_URL si existe
+        if (process.env.MYSQL_URL) {
+            pool = mysql.createPool(process.env.MYSQL_URL);
+            loggers.info('Usando MYSQL_URL para la conexión');
+        } else {
+            // Validar configuración de la base de datos
+            if (!dbConfig.host || !dbConfig.user || !dbConfig.database) {
+                console.error('❌ Configuración de la base de datos incompleta:', dbConfig);
+                process.exit(1);
+            }
+            // Fallback a configuración individual
+            pool = mysql.createPool(dbConfig);
+            loggers.info('Usando configuración individual para la conexión');
         }
-
-        pool = mysql.createPool(dbConfig);
 
         // Verificar la conexión obteniendo una del pool
         const connection = await pool.getConnection();
