@@ -6,15 +6,14 @@
 const mysql = require('mysql2/promise');
 const { loggers } = require('./logger');
 
-// Configuración de la base de datos
-// Actualización de las variables de entorno para que coincidan con Railway
+// Configuración de la base de datos para Railway
 const dbConfig = {
-    host: process.env.MYSQLHOST || process.env.DB_HOST || '127.0.0.1',
-    user: process.env.MYSQLUSER || process.env.DB_USER || 'root',
-    password: process.env.MYSQLPASSWORD || process.env.DB_PASS || 'mysql',
+    host: process.env.MYSQLHOST || 'localhost',
+    user: process.env.MYSQLUSER || 'root',
+    password: process.env.MYSQLPASSWORD || '',
     database: process.env.MYSQLDATABASE || 'railway',
-    port: process.env.MYSQLPORT || process.env.DB_PORT || 3306,
-    ssl: (process.env.DB_SSL === 'true' || process.env.MYSQL_SSL === 'true') ? { rejectUnauthorized: false } : false,
+    port: parseInt(process.env.MYSQLPORT) || 3306,
+    ssl: process.env.MYSQL_SSL === 'true' ? { rejectUnauthorized: false } : false,
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0
