@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 /**
  * CRM Básico - Configuración de Base de Datos
  * Maneja la conexión y operaciones con MySQL usando un pool de conexiones.
