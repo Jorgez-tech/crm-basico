@@ -284,19 +284,10 @@ module.exports = {
 // Test de conexión inicial
 (async () => {
     try {
-        const connection = await pool.getConnection();
-        console.log('✅ Conexión exitosa a la base de datos');
-        connection.release();
+        await connect(); // Inicializar el pool primero
+        console.log('✅ Conexión a base de datos establecida.');
     } catch (error) {
         console.error('❌ Error al conectar a la base de datos:', error.message);
-    }
-
-    try {
-        const mysql = require('mysql2/promise');
-        const connection = await mysql.createConnection(process.env.MYSQL_URL);
-        console.log('✅ Conexión exitosa usando MYSQL_URL');
-        await connection.end();
-    } catch (error) {
-        console.error('❌ Error al conectar usando MYSQL_URL:', error.message);
+        process.exit(1);
     }
 })();
