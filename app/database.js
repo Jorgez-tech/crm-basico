@@ -8,23 +8,18 @@ require('dotenv').config();
 const mysql = require('mysql2/promise');
 const { loggers } = require('./logger');
 
-// Configuración de la base de datos para Railway
-const dbConfig = process.env.MYSQL_URL
-    ? { uri: process.env.MYSQL_URL }
-    : {
-        host: process.env.MYSQLHOST || 'localhost',
-        user: process.env.MYSQLUSER || 'root',
-        password: process.env.MYSQLPASSWORD || '',
-        database: process.env.MYSQLDATABASE || 'railway',
-        port: parseInt(process.env.MYSQLPORT) || 3306,
-        ssl: process.env.MYSQL_SSL === 'true' ? { rejectUnauthorized: false } : false,
-        waitForConnections: true,
-        connectionLimit: 10,
-        queueLimit: 0,
-    };
+// Detectar si la aplicación está dentro de Railway
+const isRailwayEnvironment = !!process.env.RAILWAY_ENVIRONMENT;
+
+// Configuración de la base de datos para Railway o fuera de Railway
+const dbConfig = isRailwayEnvironment
+    ? { uri: process.env.MYSQL_URL } // Dentro de Railway: usar dominio privado
+    : { uri: process.env.MYSQL_PUBLIC_URL }; // Fuera de Railway: usar proxy público
 
 // Log de diagnóstico para la configuración de la base de datos
+loggers.info('Entorno detectado:', isRailwayEnvironment ? 'Railway' : 'Externo');
 loggers.info('Database configuration being used:', dbConfig);
+console.log('🔍 Variables de entorno:', process.env);
 
 let pool = null;
 
@@ -33,6 +28,12 @@ let pool = null;
  */
 async function connect() {
     try {
+        // Validar configuración de la base de datos
+        if (!dbConfig.uri && (!dbConfig.host || !dbConfig.user || !dbConfig.database)) {
+            console.error('❌ Configuración de la base de datos incompleta:', dbConfig);
+            process.exit(1);
+        }
+
         pool = mysql.createPool(dbConfig);
 
         // Verificar la conexión obteniendo una del pool
@@ -275,3 +276,23 @@ module.exports = {
     searchContactos,
     getStats
 };
+
+// Test de conexión inicial
+(async () => {
+    try {
+        const connection = await pool.getConnection();
+        console.log('✅ Conexión exitosa a la base de datos');
+        connection.release();
+    } catch (error) {
+        console.error('❌ Error al conectar a la base de datos:', error.message);
+    }
+
+    try {
+        const mysql = require('mysql2/promise');
+        const connection = await mysql.createConnection(process.env.MYSQL_URL);
+        console.log('✅ Conexión exitosa usando MYSQL_URL');
+        await connection.end();
+    } catch (error) {
+        console.error('❌ Error al conectar usando MYSQL_URL:', error.message);
+    }
+})();
