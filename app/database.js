@@ -8,17 +8,21 @@ require('dotenv').config();
 const mysql = require('mysql2/promise');
 const { loggers } = require('./logger');
 
-// Detectar si la aplicación está dentro de Railway
-const isRailwayEnvironment = !!process.env.RAILWAY_ENVIRONMENT;
-
-// Configuración de la base de datos para Railway o fuera de Railway
-const dbConfig = isRailwayEnvironment
-    ? { uri: process.env.MYSQL_URL } // Dentro de Railway: usar dominio privado
-    : { uri: process.env.MYSQL_PUBLIC_URL }; // Fuera de Railway: usar proxy público
+// Configuración de la base de datos usando variables de entorno de Railway
+const dbConfig = {
+    host: process.env.MYSQLHOST || 'localhost',
+    user: process.env.MYSQLUSER || 'root',
+    password: process.env.MYSQLPASSWORD || '',
+    database: process.env.MYSQL_DATABASE || 'railway',
+    port: parseInt(process.env.MYSQLPORT) || 3306,
+    ssl: process.env.MYSQL_SSL === 'true' ? { rejectUnauthorized: false } : false
+};
 
 // Log de diagnóstico para la configuración de la base de datos
-loggers.info('Entorno detectado:', isRailwayEnvironment ? 'Railway' : 'Externo');
-loggers.info('Database configuration being used:', dbConfig);
+loggers.info('Database configuration being used:', {
+    ...dbConfig,
+    password: '***' // Ocultar la contraseña en los logs
+});
 console.log('🔍 Variables de entorno:', process.env);
 
 let pool = null;
