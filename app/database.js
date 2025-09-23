@@ -12,7 +12,7 @@ const dbConfig = {
     host: process.env.MYSQLHOST || process.env.DB_HOST || '127.0.0.1',
     user: process.env.MYSQLUSER || process.env.DB_USER || 'root',
     password: process.env.MYSQLPASSWORD || process.env.DB_PASS || 'mysql',
-    database: process.env.MYSQLDATABASE || process.env.DB_NAME || 'crm_basico',
+    database: process.env.MYSQLDATABASE || 'railway',
     port: process.env.MYSQLPORT || process.env.DB_PORT || 3306,
     ssl: (process.env.DB_SSL === 'true' || process.env.MYSQL_SSL === 'true') ? { rejectUnauthorized: false } : false,
     waitForConnections: true,
