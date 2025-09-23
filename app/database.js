@@ -7,17 +7,19 @@ const mysql = require('mysql2/promise');
 const { loggers } = require('./logger');
 
 // Configuración de la base de datos para Railway
-const dbConfig = {
-    host: process.env.MYSQLHOST || 'localhost',
-    user: process.env.MYSQLUSER || 'root',
-    password: process.env.MYSQLPASSWORD || '',
-    database: process.env.MYSQLDATABASE || 'railway',
-    port: parseInt(process.env.MYSQLPORT) || 3306,
-    ssl: process.env.MYSQL_SSL === 'true' ? { rejectUnauthorized: false } : false,
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0
-};
+const dbConfig = process.env.MYSQL_URL
+    ? { uri: process.env.MYSQL_URL }
+    : {
+        host: process.env.MYSQLHOST || 'localhost',
+        user: process.env.MYSQLUSER || 'root',
+        password: process.env.MYSQLPASSWORD || '',
+        database: process.env.MYSQLDATABASE || 'railway',
+        port: parseInt(process.env.MYSQLPORT) || 3306,
+        ssl: process.env.MYSQL_SSL === 'true' ? { rejectUnauthorized: false } : false,
+        waitForConnections: true,
+        connectionLimit: 10,
+        queueLimit: 0,
+    };
 
 // Log de diagnóstico para la configuración de la base de datos
 loggers.info('Database configuration being used:', dbConfig);
