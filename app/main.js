@@ -23,8 +23,8 @@ const { loggers, httpLoggerMiddleware } = require('./logger');
 
 const app = express();
 // Bloque 1: Verificación del puerto para Railway
-// Usar process.env.PORT asignado por Railway, nunca un puerto fijo
-const PORT = process.env.PORT;
+// Usar process.env.PORT asignado por Railway, con fallback a 3000 para desarrollo
+const PORT = process.env.PORT || 3000;
 
 // ==================== CONFIGURACIÓN DE SEGURIDAD ====================
 

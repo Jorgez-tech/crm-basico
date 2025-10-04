@@ -9,21 +9,41 @@ const mysql = require('mysql2/promise');
 const { loggers } = require('./logger');
 
 // Configuración de la base de datos usando variables de entorno de Railway
+// Railway proporciona: MYSQLHOST, MYSQLUSER, MYSQLPASSWORD, MYSQL_DATABASE, MYSQLPORT
+// También soporta variables alternativas: DB_HOST, DB_USER, DB_PASS, DB_NAME, DB_PORT
 const dbConfig = {
-    host: process.env.MYSQLHOST || 'localhost',
-    user: process.env.MYSQLUSER || 'root',
-    password: process.env.MYSQLPASSWORD || '',
-    database: process.env.MYSQL_DATABASE || 'railway',
-    port: parseInt(process.env.MYSQLPORT) || 3306,
-    ssl: process.env.MYSQL_SSL === 'true' ? { rejectUnauthorized: false } : false
+    host: process.env.MYSQLHOST || process.env.DB_HOST || 'localhost',
+    user: process.env.MYSQLUSER || process.env.DB_USER || 'root',
+    password: process.env.MYSQLPASSWORD || process.env.DB_PASS || process.env.DB_PASSWORD || '',
+    database: process.env.MYSQL_DATABASE || process.env.DB_NAME || 'railway',
+    port: parseInt(process.env.MYSQLPORT || process.env.DB_PORT || '3306'),
+    // Railway MySQL requiere SSL en producción
+    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0
 };
 
 // Log de diagnóstico para la configuración de la base de datos
 loggers.info('Database configuration being used:', {
-    ...dbConfig,
+    host: dbConfig.host,
+    user: dbConfig.user,
+    database: dbConfig.database,
+    port: dbConfig.port,
+    ssl: dbConfig.ssl ? 'enabled' : 'disabled',
     password: '***' // Ocultar la contraseña en los logs
 });
-console.log('🔍 Variables de entorno:', process.env);
+
+// Solo loguear variables de entorno en desarrollo
+if (process.env.NODE_ENV === 'development') {
+    console.log('🔍 DB Environment variables:', {
+        MYSQLHOST: process.env.MYSQLHOST || 'not set',
+        MYSQLUSER: process.env.MYSQLUSER || 'not set',
+        MYSQL_DATABASE: process.env.MYSQL_DATABASE || 'not set',
+        MYSQLPORT: process.env.MYSQLPORT || 'not set',
+        MYSQL_URL: process.env.MYSQL_URL ? 'set' : 'not set'
+    });
+}
 
 let pool = null;
 
