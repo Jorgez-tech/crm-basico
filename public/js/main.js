@@ -8,7 +8,7 @@
  */
 
 document.addEventListener('DOMContentLoaded', function () {
-    console.log('🚀 CRM Básico cargado correctamente');
+    console.log('CRM Básico cargado correctamente');
 
     // Inicializar funcionalidades
     initializeFormValidation();
@@ -299,9 +299,9 @@ function handleStatusChange(select) {
 
         // Actualizar texto
         const statusText = {
-            'prospecto': '🔍 Prospecto',
-            'cliente': '✅ Cliente',
-            'inactivo': '😴 Inactivo'
+            'prospecto': 'Prospecto',
+            'cliente': 'Cliente',
+            'inactivo': 'Inactivo'
         };
         statusBadge.textContent = statusText[select.value] || select.value;
     }

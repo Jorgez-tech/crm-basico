@@ -12,7 +12,7 @@
 <body>
     <header class="header">
         <div class="container">
-            <h1>🏢 CRM Básico</h1>
+            <h1>CRM Básico</h1>
             <p>Sistema de gestión de contactos y clientes</p>
         </div>
     </header>
@@ -22,13 +22,13 @@
             <!-- Mensajes de notificación -->
             <% if (typeof message !== 'undefined' && message) { %>
                 <div class="alert alert-success fade-in">
-                    ✅ <%= message %>
+                    <%= message %>
                 </div>
             <% } %>
             
             <% if (typeof error !== 'undefined' && error) { %>
                 <div class="alert alert-error fade-in">
-                    ❌ <%= error %>
+                    <%= error %>
                 </div>
             <% } %>
 
@@ -55,14 +55,14 @@
             <!-- Búsqueda -->
             <div class="card">
                 <div class="card-header">
-                    <h2>🔍 Buscar Contactos</h2>
+                    <h2>Buscar Contactos</h2>
                 </div>
                 <div class="card-body">
                     <form action="/buscar" method="GET" class="search-form">
                         <div class="form-row">
                             <div class="form-group">
                                 <div class="search-input">
-                                    <span class="search-icon">🔍</span>
+                                    <span class="search-icon"></span>
                                     <input 
                                         type="text" 
                                         id="search-input"
@@ -91,7 +91,7 @@
             <!-- Formulario para agregar contacto -->
             <div class="card">
                 <div class="card-header">
-                    <h2>➕ Agregar Nuevo Contacto</h2>
+                    <h2>Agregar Nuevo Contacto</h2>
                 </div>
                 <div class="card-body">
                     <form action="/contactos" method="POST">
@@ -157,15 +157,15 @@
                             <div class="form-group">
                                 <label for="estado" class="form-label">Estado</label>
                                 <select id="estado" name="estado" class="form-control form-select" aria-labelledby="estado-label">
-                                    <option value="prospecto">🔍 Prospecto</option>
-                                    <option value="cliente">✅ Cliente</option>
-                                    <option value="inactivo">😴 Inactivo</option>
+                                    <option value="prospecto">Prospecto</option>
+                                    <option value="cliente">Cliente</option>
+                                    <option value="inactivo">Inactivo</option>
                                 </select>
                             </div>
                             <div class="form-group">
                                 <label class="form-label">&nbsp;</label>
                                 <button type="submit" class="btn btn-success">
-                                    ➕ Agregar Contacto
+                                    Agregar Contacto
                                 </button>
                             </div>
                         </div>
@@ -178,7 +178,7 @@
             <% if (posts && posts.length > 0) { %>
                 <div class="card">
                     <div class="card-header">
-                        <h2>📰 Noticias del Sector</h2>
+                        <h2>Noticias del Sector</h2>
                     </div>
                     <div class="card-body">
                         <p class="text-muted mb-lg">Últimas publicaciones obtenidas de fuentes externas:</p>

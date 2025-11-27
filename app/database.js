@@ -14,8 +14,10 @@ const { loggers } = require('./logger');
 const dbConfig = {
     host: process.env.MYSQLHOST || process.env.DB_HOST || 'localhost',
     user: process.env.MYSQLUSER || process.env.DB_USER || 'root',
+    // En local, a veces root no tiene contraseña, o es 'root', o 'admin'.
+    // Si no hay variable de entorno, probamos vacía por defecto.
     password: process.env.MYSQLPASSWORD || process.env.DB_PASS || process.env.DB_PASSWORD || '',
-    database: process.env.MYSQL_DATABASE || process.env.DB_NAME || 'railway',
+    database: process.env.MYSQL_DATABASE || process.env.DB_NAME || 'crm_basico', // Cambiado default a crm_basico
     port: parseInt(process.env.MYSQLPORT || process.env.DB_PORT || '3306'),
     // Railway MySQL requiere SSL en producción
     ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
@@ -36,7 +38,7 @@ loggers.info('Database configuration being used:', {
 
 // Solo loguear variables de entorno en desarrollo
 if (process.env.NODE_ENV === 'development') {
-    console.log('🔍 DB Environment variables:', {
+    console.log('DB Environment variables:', {
         MYSQLHOST: process.env.MYSQLHOST || 'not set',
         MYSQLUSER: process.env.MYSQLUSER || 'not set',
         MYSQL_DATABASE: process.env.MYSQL_DATABASE || 'not set',
@@ -52,37 +54,94 @@ let pool = null;
  */
 async function connect() {
     try {
-        // Priorizar MYSQL_URL si existe
+        let connection = null;
+        let usedUrl = false;
+
+        // Intentar primero con MYSQL_URL si existe
         if (process.env.MYSQL_URL) {
-            pool = mysql.createPool(process.env.MYSQL_URL);
-            loggers.info('Usando MYSQL_URL para la conexión');
-        } else {
-            // Validar configuración de la base de datos
-            if (!dbConfig.host || !dbConfig.user || !dbConfig.database) {
-                const error = new Error('Configuración de la base de datos incompleta');
-                loggers.error('❌ Configuración de la base de datos incompleta:', dbConfig);
-                throw error;
+            try {
+                loggers.info('Intentando conectar usando MYSQL_URL...');
+                pool = mysql.createPool({
+                    uri: process.env.MYSQL_URL,
+                    waitForConnections: true,
+                    connectionLimit: 10,
+                    queueLimit: 0
+                });
+
+                // Verificar conexión
+                connection = await pool.getConnection();
+                usedUrl = true;
+                loggers.info('Conexión exitosa usando MYSQL_URL');
+            } catch (error) {
+                loggers.warn('Fallo la conexión usando MYSQL_URL:', error.message);
+                // Si estamos en producción, esto es fatal. En desarrollo, intentamos fallback.
+                if (process.env.NODE_ENV === 'production') throw error;
+
+                // IMPORTANTE: Resetear pool a null para permitir el fallback
+                try {
+                    if (pool) await pool.end();
+                } catch (e) {
+                    // Ignorar errores al cerrar un pool que ya falló
+                }
+                pool = null;
             }
-            // Fallback a configuración individual
-            pool = mysql.createPool(dbConfig);
-            loggers.info('Usando configuración individual para la conexión');
         }
 
-        // Verificar la conexión obteniendo una del pool
-        const connection = await pool.getConnection();
-        loggers.info('📊 Pool de conexiones a MySQL creado y verificado', {
-            host: dbConfig.host,
-            database: dbConfig.database,
-            port: dbConfig.port
-        });
-        connection.release(); // Liberar la conexión de prueba
+        // Si no se pudo conectar con URL (o no existía), intentar con configuración individual
+        if (!pool) {
+            loggers.info('Intentando conectar usando configuración individual/local...');
+
+            // Verificar si la configuración individual también apunta a Railway en local
+            if (process.env.NODE_ENV !== 'production' && dbConfig.host && dbConfig.host.includes('railway.internal')) {
+                loggers.warn('ADVERTENCIA: La configuración individual apunta a un host interno de Railway (' + dbConfig.host + ') que no es accesible localmente.');
+                loggers.warn('Intentando forzar conexión a localhost...');
+                dbConfig.host = 'localhost';
+                // Asegurar usuario root si no está definido para localhost
+                if (dbConfig.user === 'root' && !process.env.DB_USER) {
+                    dbConfig.user = 'root';
+                }
+            }
+
+            pool = mysql.createPool(dbConfig);
+            try {
+                connection = await pool.getConnection();
+                loggers.info('Conexión exitosa usando configuración individual');
+            } catch (error) {
+                loggers.error('Fallo la conexión con configuración individual:', error.message);
+                throw error;
+            }
+        }
+
+        // Si llegamos aquí, tenemos una conexión válida
+        if (connection) {
+            loggers.info('Pool de conexiones a MySQL creado y verificado', {
+                host: usedUrl ? 'MYSQL_URL' : dbConfig.host,
+                database: dbConfig.database
+            });
+            connection.release();
+        }
 
         // Verificar que las tablas existan
         await initializeTables();
 
         return pool;
     } catch (error) {
-        loggers.error('❌ Error creando el pool de conexiones a MySQL', error, { config: dbConfig });
+        loggers.error('Error fatal creando el pool de conexiones a MySQL', error);
+
+        // Mensaje de ayuda específico para el error de Railway en local
+        if ((error.code === 'ENOTFOUND' && (error.hostname || '').includes('railway.internal')) ||
+            (error.message && error.message.includes('railway.internal'))) {
+            console.error('\n\x1b[33m%s\x1b[0m', '================================================================');
+            console.error('\x1b[33m%s\x1b[0m', '⚠️  ERROR DE CONFIGURACIÓN DETECTADO');
+            console.error('\x1b[33m%s\x1b[0m', 'Estás intentando conectarte a la base de datos interna de Railway desde tu entorno local.');
+            console.error('\x1b[33m%s\x1b[0m', 'Esto no funcionará porque esa dirección solo es accesible dentro de la red de Railway.');
+            console.error('\x1b[33m%s\x1b[0m', 'SOLUCIÓN:');
+            console.error('\x1b[33m%s\x1b[0m', '1. Abre tu archivo .env');
+            console.error('\x1b[33m%s\x1b[0m', '2. Comenta o elimina MYSQL_URL y MYSQLHOST si apuntan a railway.internal');
+            console.error('\x1b[33m%s\x1b[0m', '3. Asegúrate de tener una base de datos local corriendo (ej. XAMPP, MySQL Workbench)');
+            console.error('\x1b[33m%s\x1b[0m', '================================================================\n');
+        }
+
         throw error;
     }
 }
@@ -98,7 +157,7 @@ async function initializeTables() {
         if (tables.length === 0) {
             loggers.warn('Tabla contactos no encontrada. Intentando crearla...');
             await pool.execute(`
-                CREATE TABLE contactos (
+                CREATE TABLE IF NOT EXISTS contactos (
                     id INT AUTO_INCREMENT PRIMARY KEY,
                     nombre VARCHAR(255) NOT NULL,
                     correo VARCHAR(255) NOT NULL UNIQUE,
@@ -111,12 +170,12 @@ async function initializeTables() {
                     INDEX idx_fecha_creacion (fecha_creacion)
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
             `);
-            loggers.info('✅ Tabla contactos creada exitosamente.');
+            loggers.info('Tabla contactos creada exitosamente.');
         } else {
-            loggers.info('✅ Tabla contactos ya existe.');
+            loggers.info('Tabla contactos ya existe.');
         }
     } catch (error) {
-        loggers.error('❌ Error inicializando tablas', error);
+        loggers.error('Error inicializando tablas', error);
         throw error;
     }
 }
@@ -131,7 +190,7 @@ async function getAllContactos() {
         );
         return rows;
     } catch (error) {
-        loggers.error('❌ Error obteniendo contactos', error);
+        loggers.error('Error obteniendo contactos', error);
         throw error;
     }
 }
@@ -147,7 +206,7 @@ async function getContactoById(id) {
         );
         return rows[0];
     } catch (error) {
-        loggers.error('❌ Error obteniendo contacto', error, { id });
+        loggers.error('Error obteniendo contacto', error, { id });
         throw error;
     }
 }
@@ -176,7 +235,7 @@ async function createContacto(contactoData) {
 
         return result.insertId;
     } catch (error) {
-        loggers.error('❌ Error creando contacto', error, { contactoData });
+        loggers.error('Error creando contacto', error, { contactoData });
         throw error;
     }
 }
@@ -200,7 +259,7 @@ async function updateContacto(id, contactoData) {
 
         return result.affectedRows > 0;
     } catch (error) {
-        loggers.error('❌ Error actualizando contacto', error, { id, contactoData });
+        loggers.error('Error actualizando contacto', error, { id, contactoData });
         throw error;
     }
 }
@@ -222,7 +281,7 @@ async function deleteContacto(id) {
 
         return result.affectedRows > 0;
     } catch (error) {
-        loggers.error('❌ Error eliminando contacto', error, { id });
+        loggers.error('Error eliminando contacto', error, { id });
         throw error;
     }
 }
@@ -238,7 +297,7 @@ async function searchContactos(searchTerm) {
         );
         return rows;
     } catch (error) {
-        loggers.error('❌ Error buscando contactos', error, { searchTerm });
+        loggers.error('Error buscando contactos', error, { searchTerm });
         throw error;
     }
 }
@@ -260,7 +319,7 @@ async function getStats() {
             inactivos: inactivoRows[0].inactivos
         };
     } catch (error) {
-        loggers.error('❌ Error obteniendo estadísticas', error);
+        loggers.error('Error obteniendo estadísticas', error);
         throw error;
     }
 }
@@ -291,7 +350,7 @@ async function checkConnection() {
 async function close() {
     if (pool) {
         await pool.end();
-        loggers.info('🔌 Pool de conexiones a base de datos cerrado');
+        loggers.info('Pool de conexiones a base de datos cerrado');
     }
 }
 
@@ -314,9 +373,9 @@ if (process.env.NODE_ENV !== 'test') {
     (async () => {
         try {
             await connect(); // Inicializar el pool primero
-            console.log('✅ Conexión a base de datos establecida.');
+            console.log('Conexión a base de datos establecida.');
         } catch (error) {
-            console.error('❌ Error al conectar a la base de datos:', error.message);
+            console.error('Error al conectar a la base de datos:', error.message);
             // Solo terminar el proceso en producción
             if (process.env.NODE_ENV === 'production') {
                 process.exit(1);

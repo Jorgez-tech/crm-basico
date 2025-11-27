@@ -75,13 +75,13 @@
 
 ## Checklist por sprint (resumen)
 
-- Sprint 1: funcionalidad CRUD y correcciones de CSRF — ✅ Done.
-- Sprint 2: tests backend + CI — ✅ Done.
-- Sprint 3: docs y limpieza (CONTRIBUTING, README app) — ✅ Done.
-- Sprint 4: pruebas de sesión/CSRF y cookie hardening — ✅ Done.
-- Sprint 5: deploy pipeline y observabilidad — ✅ Done.
-- Sprint 6: Despliegue Railway — ✅ Done.
-- Sprint 7: CI/CD Automation — 📋 Planificado.
+- Sprint 1: funcionalidad CRUD y correcciones de CSRF — Done.
+- Sprint 2: tests backend + CI — Done.
+- Sprint 3: docs y limpieza (CONTRIBUTING, README app) — Done.
+- Sprint 4: pruebas de sesión/CSRF y cookie hardening — Done.
+- Sprint 5: deploy pipeline y observabilidad — Done.
+- Sprint 6: Despliegue Railway — Done.
+- Sprint 7: CI/CD Automation — Planificado.
 
 ---
 
@@ -139,10 +139,3 @@ node tests/e2e-edit.js
 
 Notas:
 - Si las pruebas fallan con 403, recarga la página de edición en el navegador para regenerar token y/o revisa las cookies de sesión.
-
----
-
-
-
-
-

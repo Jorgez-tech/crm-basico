@@ -10,9 +10,7 @@
 const express = require('express');
 const path = require('path');
 const helmet = require('helmet');
-// Bloque 5: Reemplazo de MemoryStore por cookie-session para producción
 const cookieSession = require('cookie-session');
-const cookieParser = require('cookie-parser');
 const csrf = require('csurf');
 const bodyParser = require('body-parser');
 
@@ -55,14 +53,14 @@ app.use(helmet.contentSecurityPolicy({
 }));
 
 // ==================== CONFIGURACIÓN DE SESIONES ====================
-app.use(cookieParser());
+app.set('trust proxy', 1);
 app.use(cookieSession({
-    name: 'session',
+    name: 'crm_session',
     keys: [process.env.SESSION_SECRET || 'crm_basico_secret_key_' + Math.random().toString(36).substring(2, 15)],
     maxAge: 24 * 60 * 60 * 1000,
-    secure: process.env.NODE_ENV === 'production',
     httpOnly: true,
-    sameSite: 'lax'
+    sameSite: 'lax',
+    signed: true
 }));
 
 // Configuración de CSRF
@@ -73,11 +71,15 @@ app.use(bodyParser.json());
 // ==================== LOGGING DE PETICIONES HTTP ====================
 app.use(httpLoggerMiddleware);
 
-// Usar csurf con la configuración por defecto (usa req.session)
+// Forzar inicialización de sesión
 app.use((req, res, next) => {
-    // Middleware para loguear el estado de la sesión y CSRF
+    if (!req.session.initialized) {
+        req.session.initialized = true;
+    }
     next();
 });
+
+// Usar csurf con la configuración por defecto (usa req.session)
 app.use(csrf());
 app.use((req, res, next) => {
     // Log después de csurf para ver el secreto y el token
@@ -146,10 +148,10 @@ app.use(express.static(path.join(__dirname, '..', 'public')));
 // ==================== CONEXIÓN A BASE DE DATOS ====================
 database.connect()
     .then(() => {
-        console.log('✅ Conexión a base de datos establecida');
+        console.log('Conexión a base de datos establecida');
     })
     .catch(err => {
-        console.error('❌ Error conectando a base de datos:', err);
+        console.error('Error conectando a base de datos:', err);
         process.exit(1);
     });
 
@@ -166,7 +168,7 @@ app.use('*', (req, res) => {
 
 // ==================== MANEJO DE ERRORES GLOBAL ====================
 app.use((err, req, res, next) => {
-    loggers.error('❌ Error no manejado', err, {
+    loggers.error('Error no manejado', err, {
         url: req.url,
         method: req.method,
         sessionId: req.sessionID,
@@ -181,7 +183,7 @@ app.use((err, req, res, next) => {
 
 // ==================== INICIAR SERVIDOR ====================
 app.listen(PORT, () => {
-    loggers.info(`🚀 Servidor CRM Básico ejecutándose en http://localhost:${PORT}`, {
+    loggers.info(`Servidor CRM Básico ejecutándose en http://localhost:${PORT}`, {
         port: PORT,
         environment: process.env.NODE_ENV || 'development',
         timestamp: new Date().toLocaleString(),
@@ -191,13 +193,13 @@ app.listen(PORT, () => {
 
 // Manejo de cierre graceful
 process.on('SIGTERM', () => {
-    loggers.info('🔄 Cerrando servidor por SIGTERM...');
+    loggers.info('Cerrando servidor por SIGTERM...');
     database.close();
     process.exit(0);
 });
 
 process.on('SIGINT', () => {
-    loggers.info('🔄 Cerrando servidor por SIGINT...');
+    loggers.info('Cerrando servidor por SIGINT...');
     database.close();
     process.exit(0);
 });

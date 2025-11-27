@@ -98,11 +98,11 @@ function getStatusColor(estado) {
  */
 function getStatusIcon(estado) {
     const iconos = {
-        'prospecto': '🔍',
-        'cliente': '✅',
-        'inactivo': '😴'
+        'prospecto': '[P]',
+        'cliente': '[C]',
+        'inactivo': '[I]'
     };
-    return iconos[estado] || '👤';
+    return iconos[estado] || '[U]';
 }
 
 /**
@@ -129,7 +129,7 @@ async function fetchExternalPosts() {
 
         return response.data || [];
     } catch (error) {
-        console.warn('⚠️ No se pudieron obtener posts externos:', error.message);
+        console.warn('No se pudieron obtener posts externos:', error.message);
         return [];
     }
 }

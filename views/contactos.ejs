@@ -8,12 +8,12 @@
 </head>
 <body>
     <div class="container">
-        <h1>👥 Lista de Contactos</h1>
+        <h1>Lista de Contactos</h1>
         <% if (message) { %>
-            <div class="alert alert-success fade-in">✅ <%= message %></div>
+            <div class="alert alert-success fade-in"><%= message %></div>
         <% } %>
         <% if (error) { %>
-            <div class="alert alert-error fade-in">❌ <%= error %></div>
+            <div class="alert alert-error fade-in"><%= error %></div>
         <% } %>
         <% if (contactos && contactos.length > 0) { %>
             <ul class="contact-list">
@@ -21,16 +21,16 @@
                     <li class="contact-item fade-in">
                         <div class="contact-info">
                             <h4><%= contacto.nombre %></h4>
-                            <p>📧 <%= contacto.correo %></p>
+                            <p>Email: <%= contacto.correo %></p>
                             <% if (contacto.telefono) { %>
-                                <p>📞 <%= contacto.telefono %></p>
+                                <p>Tel: <%= contacto.telefono %></p>
                             <% } %>
                             <% if (contacto.empresa) { %>
-                                <p>🏢 <%= contacto.empresa %></p>
+                                <p>Empresa: <%= contacto.empresa %></p>
                             <% } %>
                             <p>
                                 <span class="status-badge <%= contacto.estado %>">
-                                    <%= contacto.estado === 'prospecto' ? '🔍 Prospecto' : contacto.estado === 'cliente' ? '✅ Cliente' : '😴 Inactivo' %>
+                                    <%= contacto.estado === 'prospecto' ? 'Prospecto' : contacto.estado === 'cliente' ? 'Cliente' : 'Inactivo' %>
                                 </span>
                             </p>
                             <p class="text-muted text-small">
@@ -38,10 +38,10 @@
                             </p>
                         </div>
                         <div class="contact-actions">
-                            <a href="/contactos/<%= contacto.id %>/editar" class="btn btn-outline btn-sm">✏️ Editar</a>
+                            <a href="/contactos/<%= contacto.id %>/editar" class="btn btn-outline btn-sm">Editar</a>
                             <form action="/contactos/<%= contacto.id %>/eliminar" method="POST" style="display: inline;">
                                 <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                                <button type="submit" class="btn btn-danger btn-sm">🗑️ Eliminar</button>
+                                <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
                             </form>
                         </div>
                     </li>
@@ -49,7 +49,7 @@
             </ul>
         <% } else { %>
             <div class="text-center" style="padding: 40px;">
-                <h3>📭 No hay contactos</h3>
+                <h3>No hay contactos</h3>
                 <p class="text-muted">Agrega tu primer contacto usando el formulario de arriba.</p>
             </div>
         <% } %>
