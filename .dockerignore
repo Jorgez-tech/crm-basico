@@ -1,0 +1,22 @@
+# Ignorar módulos de Node.js locales (npm ci instalará los suyos en el contenedor)
+node_modules
+npm-debug.log
+
+# Ignorar archivos de Git
+.git
+.gitignore
+.github
+
+# Ignorar archivos del entorno de desarrollo
+.env
+.vs
+tests
+*.test.js
+
+# Ignorar archivos de documentación y configuración que no se necesitan en runtime
+README.md
+GCP_DEPLOYMENT_GUIDE.md
+Dockerfile
+.dockerignore
+.eslint*
+.prettierrc
